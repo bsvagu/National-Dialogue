@@ -13,6 +13,7 @@ import {
   votes,
   notifications,
   auditLogs,
+  otpVerifications,
   type User,
   type UserWithRoles,
   type InsertUser,
@@ -29,6 +30,8 @@ import {
   type Permission,
   type Notification,
   type AuditLog,
+  type OtpVerification,
+  type InsertOtpVerification,
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, and, or, desc, asc, count, sql, gte, lte, like, inArray } from "drizzle-orm";
@@ -100,6 +103,21 @@ export interface IStorage {
   getUserNotifications(userId: string, unreadOnly?: boolean): Promise<Notification[]>;
   createNotification(notification: { userId: string; type: string; title: string; body?: string }): Promise<Notification>;
   markNotificationRead(id: string): Promise<void>;
+
+  // OTP operations
+  createOtpVerification(otp: InsertOtpVerification): Promise<OtpVerification>;
+  getOtpVerification(identifier: string, type: string): Promise<OtpVerification | undefined>;
+  markOtpAsUsed(id: string): Promise<void>;
+  incrementOtpAttempts(id: string): Promise<void>;
+  deleteOtpVerification(identifier: string, type: string): Promise<void>;
+  cleanupExpiredOtps(): Promise<void>;
+  getRecentOtpRequests(identifier: string, type: string, since: Date): Promise<OtpVerification[]>;
+  getOtpStats(): Promise<{
+    totalSent: number;
+    totalVerified: number;
+    successRate: number;
+    recentRequests: number;
+  }>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -550,6 +568,111 @@ export class DatabaseStorage implements IStorage {
       .update(notifications)
       .set({ read: true })
       .where(eq(notifications.id, id));
+  }
+
+  // OTP operations
+  async createOtpVerification(otp: InsertOtpVerification): Promise<OtpVerification> {
+    const [newOtp] = await db
+      .insert(otpVerifications)
+      .values(otp)
+      .returning();
+    return newOtp;
+  }
+
+  async getOtpVerification(identifier: string, type: string): Promise<OtpVerification | undefined> {
+    const [otp] = await db
+      .select()
+      .from(otpVerifications)
+      .where(
+        and(
+          eq(otpVerifications.identifier, identifier),
+          eq(otpVerifications.type, type),
+          eq(otpVerifications.isUsed, false)
+        )
+      )
+      .orderBy(desc(otpVerifications.createdAt));
+    return otp || undefined;
+  }
+
+  async markOtpAsUsed(id: string): Promise<void> {
+    await db
+      .update(otpVerifications)
+      .set({ isUsed: true })
+      .where(eq(otpVerifications.id, id));
+  }
+
+  async incrementOtpAttempts(id: string): Promise<void> {
+    await db
+      .update(otpVerifications)
+      .set({ attempts: sql`${otpVerifications.attempts} + 1` })
+      .where(eq(otpVerifications.id, id));
+  }
+
+  async deleteOtpVerification(identifier: string, type: string): Promise<void> {
+    await db
+      .delete(otpVerifications)
+      .where(
+        and(
+          eq(otpVerifications.identifier, identifier),
+          eq(otpVerifications.type, type)
+        )
+      );
+  }
+
+  async cleanupExpiredOtps(): Promise<void> {
+    const now = new Date();
+    await db
+      .delete(otpVerifications)
+      .where(lte(otpVerifications.expiresAt, now));
+  }
+
+  async getRecentOtpRequests(identifier: string, type: string, since: Date): Promise<OtpVerification[]> {
+    return await db
+      .select()
+      .from(otpVerifications)
+      .where(
+        and(
+          eq(otpVerifications.identifier, identifier),
+          eq(otpVerifications.type, type),
+          gte(otpVerifications.createdAt, since)
+        )
+      )
+      .orderBy(desc(otpVerifications.createdAt));
+  }
+
+  async getOtpStats(): Promise<{
+    totalSent: number;
+    totalVerified: number;
+    successRate: number;
+    recentRequests: number;
+  }> {
+    const now = new Date();
+    const last24Hours = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+
+    const [totalSent] = await db
+      .select({ count: count() })
+      .from(otpVerifications);
+
+    const [totalVerified] = await db
+      .select({ count: count() })
+      .from(otpVerifications)
+      .where(eq(otpVerifications.isUsed, true));
+
+    const [recentRequests] = await db
+      .select({ count: count() })
+      .from(otpVerifications)
+      .where(gte(otpVerifications.createdAt, last24Hours));
+
+    const successRate = totalSent.count > 0 
+      ? Math.round((totalVerified.count / totalSent.count) * 100) 
+      : 0;
+
+    return {
+      totalSent: totalSent.count,
+      totalVerified: totalVerified.count,
+      successRate,
+      recentRequests: recentRequests.count
+    };
   }
 }
 

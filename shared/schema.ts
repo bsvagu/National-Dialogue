@@ -215,6 +215,23 @@ export const notifications = pgTable("notifications", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
+// OTP verification table
+export const otpVerifications = pgTable("otp_verifications", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  identifier: varchar("identifier", { length: 255 }).notNull(), // email or phone
+  type: varchar("type", { length: 10 }).notNull(), // 'email' or 'sms'
+  code: varchar("code", { length: 10 }).notNull(),
+  hashedCode: varchar("hashed_code", { length: 255 }).notNull(),
+  attempts: integer("attempts").default(0).notNull(),
+  isUsed: boolean("is_used").default(false).notNull(),
+  expiresAt: timestamp("expires_at").notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  userId: uuid("user_id").references(() => users.id),
+}, (table) => ({
+  identifierIdx: index("otp_identifier_idx").on(table.identifier),
+  expiresAtIdx: index("otp_expires_at_idx").on(table.expiresAt),
+}));
+
 // Audit log table
 export const auditLogs = pgTable("audit_logs", {
   id: uuid("id").primaryKey().defaultRandom(),
@@ -340,6 +357,13 @@ export const notificationsRelations = relations(notifications, ({ one }) => ({
   }),
 }));
 
+export const otpVerificationsRelations = relations(otpVerifications, ({ one }) => ({
+  user: one(users, {
+    fields: [otpVerifications.userId],
+    references: [users.id],
+  }),
+}));
+
 export const auditLogsRelations = relations(auditLogs, ({ one }) => ({
   actor: one(users, {
     fields: [auditLogs.actorId],
@@ -392,6 +416,24 @@ export const loginSchema = z.object({
   password: z.string().min(6),
 });
 
+export const otpRequestSchema = z.object({
+  identifier: z.string().min(1), // email or phone
+  type: z.enum(["email", "sms"]),
+});
+
+export const otpVerifySchema = z.object({
+  identifier: z.string().min(1),
+  code: z.string().length(6),
+  type: z.enum(["email", "sms"]),
+});
+
+export const insertOtpVerificationSchema = createInsertSchema(otpVerifications).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const selectOtpVerificationSchema = createSelectSchema(otpVerifications);
+
 // Types
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type User = typeof users.$inferSelect;
@@ -414,6 +456,10 @@ export type InsertPoll = z.infer<typeof insertPollSchema>;
 export type Poll = typeof polls.$inferSelect;
 
 export type LoginRequest = z.infer<typeof loginSchema>;
+export type OtpRequest = z.infer<typeof otpRequestSchema>;
+export type OtpVerify = z.infer<typeof otpVerifySchema>;
+export type InsertOtpVerification = z.infer<typeof insertOtpVerificationSchema>;
+export type OtpVerification = typeof otpVerifications.$inferSelect;
 
 export type Role = typeof roles.$inferSelect;
 export type Permission = typeof permissions.$inferSelect;

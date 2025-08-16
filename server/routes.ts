@@ -3,7 +3,8 @@ import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { authenticateToken, generateTokens, verifyPassword, requirePermission, hashPassword, type AuthenticatedRequest } from "./auth";
 import { auditLogger, errorHandler, rateLimiter } from "./middleware";
-import { loginSchema, insertUserSchema, insertSubmissionSchema, insertCaseSchema, insertDepartmentSchema, insertPollSchema } from "@shared/schema";
+import { loginSchema, insertUserSchema, insertSubmissionSchema, insertCaseSchema, insertDepartmentSchema, insertPollSchema, otpRequestSchema, otpVerifySchema } from "@shared/schema";
+import { OtpService } from "./services/otp-service";
 import { seedDatabase } from "./seed";
 
 export async function registerRoutes(app: Express): Promise<Server> {
@@ -515,6 +516,72 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get('/api/healthz', (req, res) => {
     res.json({ status: 'healthy', timestamp: new Date().toISOString() });
+  });
+
+  // OTP endpoints
+  app.post('/api/otp/request', async (req, res) => {
+    try {
+      const request = otpRequestSchema.parse(req.body);
+      const result = await OtpService.requestOtp(request);
+      
+      if (result.success) {
+        res.status(200).json({
+          success: true,
+          message: result.message,
+          data: result.data
+        });
+      } else {
+        res.status(400).json({
+          success: false,
+          error: result.error
+        });
+      }
+    } catch (error: any) {
+      console.error('OTP request error:', error);
+      res.status(400).json({
+        success: false,
+        error: 'Invalid OTP request data'
+      });
+    }
+  });
+
+  app.post('/api/otp/verify', async (req, res) => {
+    try {
+      const request = otpVerifySchema.parse(req.body);
+      const result = await OtpService.verifyOtp(request);
+      
+      if (result.success) {
+        res.status(200).json({
+          success: true,
+          message: result.message,
+          data: result.data
+        });
+      } else {
+        res.status(400).json({
+          success: false,
+          error: result.error
+        });
+      }
+    } catch (error: any) {
+      console.error('OTP verification error:', error);
+      res.status(400).json({
+        success: false,
+        error: 'Invalid OTP verification data'
+      });
+    }
+  });
+
+  // OTP statistics endpoint (protected)
+  app.get('/api/otp/stats', authenticateToken, requirePermission('view_analytics'), async (req, res) => {
+    try {
+      const stats = await OtpService.getOtpStats();
+      res.status(200).json(stats);
+    } catch (error: any) {
+      console.error('OTP stats error:', error);
+      res.status(500).json({
+        error: 'Failed to fetch OTP statistics'
+      });
+    }
   });
 
   // Error handler
