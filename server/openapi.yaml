@@ -1,0 +1,1076 @@
+openapi: 3.0.3
+info:
+  title: National Dialogue ZA - Admin Portal API
+  description: System of record API for South Africa's National Dialogue programme
+  version: 1.0.0
+  contact:
+    name: National Dialogue ZA
+    email: admin@nationaldialogue.za
+servers:
+  - url: http://localhost:5000/api
+    description: Development server
+  - url: https://admin.nationaldialogue.za/api
+    description: Production server
+
+paths:
+  /auth/login:
+    post:
+      summary: User authentication
+      tags: [Authentication]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AuthLoginRequest'
+      responses:
+        '200':
+          description: Successful authentication
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthLoginResponse'
+        '401':
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /auth/me:
+    get:
+      summary: Get current user information
+      tags: [Authentication]
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Current user information
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /users:
+    get:
+      summary: List users with optional filtering
+      tags: [Users]
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: role
+          in: query
+          schema:
+            type: string
+          description: Filter by role
+        - name: active
+          in: query
+          schema:
+            type: boolean
+          description: Filter by active status
+        - name: search
+          in: query
+          schema:
+            type: string
+          description: Search by name or email
+      responses:
+        '200':
+          description: List of users
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+        '403':
+          description: Insufficient permissions
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    post:
+      summary: Create a new user
+      tags: [Users]
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateUserRequest'
+      responses:
+        '201':
+          description: User created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '400':
+          description: Invalid request data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /users/{id}:
+    get:
+      summary: Get user by ID
+      tags: [Users]
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: User details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '404':
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    patch:
+      summary: Update user
+      tags: [Users]
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateUserRequest'
+      responses:
+        '200':
+          description: User updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '400':
+          description: Invalid request data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    delete:
+      summary: Delete user
+      tags: [Users]
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: User deleted successfully
+        '404':
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /submissions:
+    get:
+      summary: List submissions with filtering and pagination
+      tags: [Submissions]
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: status
+          in: query
+          schema:
+            $ref: '#/components/schemas/SubmissionStatus'
+        - name: province
+          in: query
+          schema:
+            $ref: '#/components/schemas/Province'
+        - name: channel
+          in: query
+          schema:
+            $ref: '#/components/schemas/Channel'
+        - name: search
+          in: query
+          schema:
+            type: string
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+        - name: offset
+          in: query
+          schema:
+            type: integer
+            default: 0
+      responses:
+        '200':
+          description: List of submissions
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SubmissionsResponse'
+
+    post:
+      summary: Create a new submission
+      tags: [Submissions]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateSubmissionRequest'
+      responses:
+        '201':
+          description: Submission created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Submission'
+
+  /submissions/{id}:
+    get:
+      summary: Get submission by ID
+      tags: [Submissions]
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Submission details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Submission'
+
+    patch:
+      summary: Update submission (moderation actions)
+      tags: [Submissions]
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateSubmissionRequest'
+      responses:
+        '200':
+          description: Submission updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Submission'
+
+  /cases:
+    get:
+      summary: List cases with filtering and pagination
+      tags: [Cases]
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: state
+          in: query
+          schema:
+            $ref: '#/components/schemas/CaseState'
+        - name: department
+          in: query
+          schema:
+            type: string
+            format: uuid
+        - name: assignee
+          in: query
+          schema:
+            type: string
+            format: uuid
+        - name: priority
+          in: query
+          schema:
+            $ref: '#/components/schemas/Priority'
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+        - name: offset
+          in: query
+          schema:
+            type: integer
+            default: 0
+      responses:
+        '200':
+          description: List of cases
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CasesResponse'
+
+    post:
+      summary: Create a new case
+      tags: [Cases]
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateCaseRequest'
+      responses:
+        '201':
+          description: Case created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Case'
+
+  /cases/{id}:
+    get:
+      summary: Get case by ID
+      tags: [Cases]
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Case details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Case'
+
+    patch:
+      summary: Update case
+      tags: [Cases]
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateCaseRequest'
+      responses:
+        '200':
+          description: Case updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Case'
+
+  /departments:
+    get:
+      summary: List departments
+      tags: [Departments]
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: List of departments
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Department'
+
+    post:
+      summary: Create a new department
+      tags: [Departments]
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateDepartmentRequest'
+      responses:
+        '201':
+          description: Department created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Department'
+
+  /departments/{id}:
+    get:
+      summary: Get department by ID
+      tags: [Departments]
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Department details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Department'
+
+    patch:
+      summary: Update department
+      tags: [Departments]
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateDepartmentRequest'
+      responses:
+        '200':
+          description: Department updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Department'
+
+  /analytics/summary:
+    get:
+      summary: Get analytics summary
+      tags: [Analytics]
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: range
+          in: query
+          schema:
+            type: string
+            enum: [7d, 30d, 90d]
+            default: 7d
+      responses:
+        '200':
+          description: Analytics summary data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AnalyticsSummary'
+
+  /polls:
+    get:
+      summary: List polls
+      tags: [Polls]
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: active
+          in: query
+          schema:
+            type: boolean
+      responses:
+        '200':
+          description: List of polls
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Poll'
+
+    post:
+      summary: Create a new poll
+      tags: [Polls]
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreatePollRequest'
+      responses:
+        '201':
+          description: Poll created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Poll'
+
+  /healthz:
+    get:
+      summary: Health check endpoint
+      tags: [System]
+      responses:
+        '200':
+          description: Service is healthy
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: "healthy"
+                  timestamp:
+                    type: string
+                    format: date-time
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    # Authentication Schemas
+    AuthLoginRequest:
+      type: object
+      required: [email, password]
+      properties:
+        email:
+          type: string
+          format: email
+          example: "thandi@admin.local"
+        password:
+          type: string
+          example: "admin123"
+
+    AuthLoginResponse:
+      type: object
+      properties:
+        user:
+          $ref: '#/components/schemas/UserInfo'
+        accessToken:
+          type: string
+        refreshToken:
+          type: string
+
+    UserInfo:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        email:
+          type: string
+          format: email
+        roles:
+          type: array
+          items:
+            type: string
+
+    # User Schemas
+    User:
+      type: object
+      required: [id, name, email, isActive, createdAt]
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+          example: "Thandi Dlamini"
+        email:
+          type: string
+          format: email
+          example: "thandi@admin.local"
+        phone:
+          type: string
+          nullable: true
+          example: "+27123456789"
+        province:
+          $ref: '#/components/schemas/Province'
+        isActive:
+          type: boolean
+          example: true
+        roles:
+          type: array
+          items:
+            type: string
+          example: ["SuperAdmin"]
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    CreateUserRequest:
+      type: object
+      required: [name, email, passwordHash, roles]
+      properties:
+        name:
+          type: string
+        email:
+          type: string
+          format: email
+        phone:
+          type: string
+        province:
+          $ref: '#/components/schemas/Province'
+        passwordHash:
+          type: string
+        isActive:
+          type: boolean
+          default: true
+        roles:
+          type: array
+          items:
+            type: string
+
+    UpdateUserRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        email:
+          type: string
+          format: email
+        phone:
+          type: string
+        province:
+          $ref: '#/components/schemas/Province'
+        isActive:
+          type: boolean
+        roles:
+          type: array
+          items:
+            type: string
+
+    # Submission Schemas
+    Submission:
+      type: object
+      required: [id, text, channel, status, createdAt]
+      properties:
+        id:
+          type: string
+          format: uuid
+        userId:
+          type: string
+          format: uuid
+          nullable: true
+        channel:
+          $ref: '#/components/schemas/Channel'
+        text:
+          type: string
+          example: "Pothole on Main Road causing accidents"
+        mediaUrls:
+          type: array
+          items:
+            type: string
+            format: uri
+        languageDetected:
+          type: string
+          example: "en"
+        province:
+          $ref: '#/components/schemas/Province'
+        sentiment:
+          type: number
+          minimum: -1
+          maximum: 1
+          example: -0.3
+        toxicity:
+          type: boolean
+          example: false
+        status:
+          $ref: '#/components/schemas/SubmissionStatus'
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    CreateSubmissionRequest:
+      type: object
+      required: [text, channel]
+      properties:
+        userId:
+          type: string
+          format: uuid
+        channel:
+          $ref: '#/components/schemas/Channel'
+        text:
+          type: string
+        mediaUrls:
+          type: array
+          items:
+            type: string
+            format: uri
+        languageDetected:
+          type: string
+        province:
+          $ref: '#/components/schemas/Province'
+
+    UpdateSubmissionRequest:
+      type: object
+      properties:
+        status:
+          $ref: '#/components/schemas/SubmissionStatus'
+        sentiment:
+          type: number
+          minimum: -1
+          maximum: 1
+        toxicity:
+          type: boolean
+
+    SubmissionsResponse:
+      type: object
+      properties:
+        submissions:
+          type: array
+          items:
+            $ref: '#/components/schemas/Submission'
+        total:
+          type: integer
+
+    # Case Schemas
+    Case:
+      type: object
+      required: [id, submissionId, departmentId, priority, state, createdAt]
+      properties:
+        id:
+          type: string
+          format: uuid
+        submissionId:
+          type: string
+          format: uuid
+        departmentId:
+          type: string
+          format: uuid
+        assigneeId:
+          type: string
+          format: uuid
+          nullable: true
+        priority:
+          $ref: '#/components/schemas/Priority'
+        state:
+          $ref: '#/components/schemas/CaseState'
+        dueAt:
+          type: string
+          format: date-time
+          nullable: true
+        resolutionNote:
+          type: string
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    CreateCaseRequest:
+      type: object
+      required: [submissionId, departmentId]
+      properties:
+        submissionId:
+          type: string
+          format: uuid
+        departmentId:
+          type: string
+          format: uuid
+        assigneeId:
+          type: string
+          format: uuid
+        priority:
+          $ref: '#/components/schemas/Priority'
+        dueAt:
+          type: string
+          format: date-time
+
+    UpdateCaseRequest:
+      type: object
+      properties:
+        assigneeId:
+          type: string
+          format: uuid
+        priority:
+          $ref: '#/components/schemas/Priority'
+        state:
+          $ref: '#/components/schemas/CaseState'
+        resolutionNote:
+          type: string
+
+    CasesResponse:
+      type: object
+      properties:
+        cases:
+          type: array
+          items:
+            $ref: '#/components/schemas/Case'
+        total:
+          type: integer
+
+    # Department Schemas
+    Department:
+      type: object
+      required: [id, name, jurisdiction, slaHours, createdAt]
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+          example: "Health"
+        jurisdiction:
+          $ref: '#/components/schemas/Jurisdiction'
+        province:
+          $ref: '#/components/schemas/Province'
+        email:
+          type: string
+          format: email
+          nullable: true
+        slaHours:
+          type: integer
+          example: 72
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    CreateDepartmentRequest:
+      type: object
+      required: [name, jurisdiction, slaHours]
+      properties:
+        name:
+          type: string
+        jurisdiction:
+          $ref: '#/components/schemas/Jurisdiction'
+        province:
+          $ref: '#/components/schemas/Province'
+        email:
+          type: string
+          format: email
+        slaHours:
+          type: integer
+
+    UpdateDepartmentRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        email:
+          type: string
+          format: email
+        slaHours:
+          type: integer
+
+    # Poll Schemas
+    Poll:
+      type: object
+      required: [id, question, options, startAt, endAt, createdAt]
+      properties:
+        id:
+          type: string
+          format: uuid
+        question:
+          type: string
+          example: "What is the most important service delivery issue?"
+        options:
+          type: array
+          items:
+            type: string
+          example: ["Water", "Electricity", "Healthcare"]
+        startAt:
+          type: string
+          format: date-time
+        endAt:
+          type: string
+          format: date-time
+        targetProvince:
+          $ref: '#/components/schemas/Province'
+        createdAt:
+          type: string
+          format: date-time
+
+    CreatePollRequest:
+      type: object
+      required: [question, options, startAt, endAt]
+      properties:
+        question:
+          type: string
+        options:
+          type: array
+          items:
+            type: string
+        startAt:
+          type: string
+          format: date-time
+        endAt:
+          type: string
+          format: date-time
+        targetProvince:
+          $ref: '#/components/schemas/Province'
+
+    # Analytics Schemas
+    AnalyticsSummary:
+      type: object
+      properties:
+        submissions:
+          type: object
+          properties:
+            total:
+              type: integer
+            recent:
+              type: integer
+            growth:
+              type: number
+        cases:
+          type: object
+          properties:
+            total:
+              type: integer
+            active:
+              type: integer
+            overdue:
+              type: integer
+        sentiment:
+          type: object
+          properties:
+            avgSentiment:
+              type: number
+            positiveCount:
+              type: integer
+            neutralCount:
+              type: integer
+            negativeCount:
+              type: integer
+        provinces:
+          type: array
+          items:
+            type: object
+            properties:
+              province:
+                type: string
+              count:
+                type: integer
+
+    # Enum Schemas
+    SubmissionStatus:
+      type: string
+      enum: [new, moderated, routed, in_progress, resolved, declined]
+
+    Channel:
+      type: string
+      enum: [mobile, web, whatsapp, social]
+
+    CaseState:
+      type: string
+      enum: [open, investigating, awaiting_info, resolved]
+
+    Priority:
+      type: string
+      enum: [low, medium, high]
+
+    Jurisdiction:
+      type: string
+      enum: [national, provincial, municipal]
+
+    Province:
+      type: string
+      enum: [eastern_cape, free_state, gauteng, kwazulu_natal, limpopo, mpumalanga, northern_cape, north_west, western_cape]
+
+    # Error Schema
+    ErrorResponse:
+      type: object
+      required: [error]
+      properties:
+        error:
+          type: object
+          required: [code, message]
+          properties:
+            code:
+              type: string
+              example: "VALIDATION_ERROR"
+            message:
+              type: string
+              example: "Invalid request data"
+            details:
+              type: object
+              description: "Additional error details"
+
+tags:
+  - name: Authentication
+    description: User authentication and authorization
+  - name: Users
+    description: User management operations
+  - name: Submissions
+    description: Citizen submission management
+  - name: Cases
+    description: Case management and tracking
+  - name: Departments
+    description: Government department management
+  - name: Polls
+    description: Public polling system
+  - name: Analytics
+    description: Data analytics and reporting
+  - name: System
+    description: System health and utilities
