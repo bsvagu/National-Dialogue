@@ -1,101 +1,278 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+/* Material Design 3 System Color Tokens - Light Theme */
 :root {
-  --background: hsl(0 0% 100%);
-  --foreground: hsl(210 25% 7.8431%);
-  --card: hsl(180 6.6667% 97.0588%);
-  --card-foreground: hsl(210 25% 7.8431%);
-  --popover: hsl(0 0% 100%);
-  --popover-foreground: hsl(210 25% 7.8431%);
-  --primary: hsl(203.8863 88.2845% 53.1373%);
-  --primary-foreground: hsl(0 0% 100%);
-  --secondary: hsl(210 25% 7.8431%);
-  --secondary-foreground: hsl(0 0% 100%);
-  --muted: hsl(240 1.9608% 90%);
-  --muted-foreground: hsl(210 25% 7.8431%);
-  --accent: hsl(211.5789 51.3514% 92.7451%);
-  --accent-foreground: hsl(203.8863 88.2845% 53.1373%);
-  --destructive: hsl(356.3033 90.5579% 54.3137%);
-  --destructive-foreground: hsl(0 0% 100%);
-  --border: hsl(201.4286 30.4348% 90.9804%);
-  --input: hsl(200 23.0769% 97.4510%);
-  --ring: hsl(202.8169 89.1213% 53.1373%);
-  --chart-1: hsl(203.8863 88.2845% 53.1373%);
-  --chart-2: hsl(159.7826 100% 36.0784%);
-  --chart-3: hsl(42.0290 92.8251% 56.2745%);
-  --chart-4: hsl(147.1429 78.5047% 41.9608%);
-  --chart-5: hsl(341.4894 75.2000% 50.9804%);
-  --sidebar: hsl(180 6.6667% 97.0588%);
-  --sidebar-foreground: hsl(210 25% 7.8431%);
-  --sidebar-primary: hsl(203.8863 88.2845% 53.1373%);
-  --sidebar-primary-foreground: hsl(0 0% 100%);
-  --sidebar-accent: hsl(211.5789 51.3514% 92.7451%);
-  --sidebar-accent-foreground: hsl(203.8863 88.2845% 53.1373%);
-  --sidebar-border: hsl(205.0000 25.0000% 90.5882%);
-  --sidebar-ring: hsl(202.8169 89.1213% 53.1373%);
-  --font-sans: Open Sans, sans-serif;
-  --font-serif: Georgia, serif;
-  --font-mono: Menlo, monospace;
-  --radius: 1.3rem;
-  --shadow-2xs: 0px 2px 0px 0px hsl(202.8169 89.1213% 53.1373% / 0.00);
-  --shadow-xs: 0px 2px 0px 0px hsl(202.8169 89.1213% 53.1373% / 0.00);
-  --shadow-sm: 0px 2px 0px 0px hsl(202.8169 89.1213% 53.1373% / 0.00), 0px 1px 2px -1px hsl(202.8169 89.1213% 53.1373% / 0.00);
-  --shadow: 0px 2px 0px 0px hsl(202.8169 89.1213% 53.1373% / 0.00), 0px 1px 2px -1px hsl(202.8169 89.1213% 53.1373% / 0.00);
-  --shadow-md: 0px 2px 0px 0px hsl(202.8169 89.1213% 53.1373% / 0.00), 0px 2px 4px -1px hsl(202.8169 89.1213% 53.1373% / 0.00);
-  --shadow-lg: 0px 2px 0px 0px hsl(202.8169 89.1213% 53.1373% / 0.00), 0px 4px 6px -1px hsl(202.8169 89.1213% 53.1373% / 0.00);
-  --shadow-xl: 0px 2px 0px 0px hsl(202.8169 89.1213% 53.1373% / 0.00), 0px 8px 10px -1px hsl(202.8169 89.1213% 53.1373% / 0.00);
-  --shadow-2xl: 0px 2px 0px 0px hsl(202.8169 89.1213% 53.1373% / 0.00);
-  --tracking-normal: 0em;
-  --spacing: 0.25rem;
+  /* Primary Colors */
+  --md-sys-color-primary: hsl(258, 100%, 87%);
+  --md-sys-color-on-primary: hsl(258, 100%, 10%);
+  --md-sys-color-primary-container: hsl(258, 100%, 95%);
+  --md-sys-color-on-primary-container: hsl(258, 100%, 15%);
+
+  /* Secondary Colors */  
+  --md-sys-color-secondary: hsl(250, 30%, 60%);
+  --md-sys-color-on-secondary: hsl(0, 0%, 100%);
+  --md-sys-color-secondary-container: hsl(250, 30%, 90%);
+  --md-sys-color-on-secondary-container: hsl(250, 30%, 20%);
+
+  /* Tertiary Colors */
+  --md-sys-color-tertiary: hsl(350, 40%, 60%);
+  --md-sys-color-on-tertiary: hsl(0, 0%, 100%);
+  --md-sys-color-tertiary-container: hsl(350, 40%, 95%);
+  --md-sys-color-on-tertiary-container: hsl(350, 40%, 15%);
+
+  /* Error Colors */
+  --md-sys-color-error: hsl(0, 100%, 67%);
+  --md-sys-color-on-error: hsl(0, 0%, 100%);
+  --md-sys-color-error-container: hsl(0, 100%, 95%);
+  --md-sys-color-on-error-container: hsl(0, 100%, 15%);
+
+  /* Surface Colors */
+  --md-sys-color-surface: hsl(0, 0%, 98%);
+  --md-sys-color-on-surface: hsl(0, 0%, 10%);
+  --md-sys-color-surface-variant: hsl(270, 5%, 92%);
+  --md-sys-color-on-surface-variant: hsl(270, 5%, 30%);
+  --md-sys-color-surface-dim: hsl(0, 0%, 85%);
+  --md-sys-color-surface-bright: hsl(0, 0%, 98%);
+  --md-sys-color-surface-container-lowest: hsl(0, 0%, 100%);
+  --md-sys-color-surface-container-low: hsl(0, 0%, 96%);
+  --md-sys-color-surface-container: hsl(0, 0%, 94%);
+  --md-sys-color-surface-container-high: hsl(0, 0%, 92%);
+  --md-sys-color-surface-container-highest: hsl(0, 0%, 90%);
+
+  /* Background Colors */
+  --md-sys-color-background: hsl(0, 0%, 98%);
+  --md-sys-color-on-background: hsl(0, 0%, 10%);
+
+  /* Outline Colors */
+  --md-sys-color-outline: hsl(270, 5%, 50%);
+  --md-sys-color-outline-variant: hsl(270, 5%, 80%);
+
+  /* Shadow & Scrim */
+  --md-sys-color-shadow: hsl(0, 0%, 0%);
+  --md-sys-color-scrim: hsl(0, 0%, 0%);
+
+  /* Component-specific mappings for Tailwind */
+  --background: var(--md-sys-color-background);
+  --foreground: var(--md-sys-color-on-background);
+  --card: var(--md-sys-color-surface-container-low);
+  --card-foreground: var(--md-sys-color-on-surface);
+  --popover: var(--md-sys-color-surface-container);
+  --popover-foreground: var(--md-sys-color-on-surface);
+  --primary: var(--md-sys-color-primary);
+  --primary-foreground: var(--md-sys-color-on-primary);
+  --secondary: var(--md-sys-color-secondary);
+  --secondary-foreground: var(--md-sys-color-on-secondary);
+  --muted: var(--md-sys-color-surface-variant);
+  --muted-foreground: var(--md-sys-color-on-surface-variant);
+  --accent: var(--md-sys-color-primary-container);
+  --accent-foreground: var(--md-sys-color-on-primary-container);
+  --destructive: var(--md-sys-color-error);
+  --destructive-foreground: var(--md-sys-color-on-error);
+  --border: var(--md-sys-color-outline-variant);
+  --input: var(--md-sys-color-surface-container-highest);
+  --ring: var(--md-sys-color-primary);
+
+  /* Material Design 3 Typography Scale */
+  --md-sys-typescale-display-large-font: 'Roboto';
+  --md-sys-typescale-display-large-size: 3.5625rem; /* 57px */
+  --md-sys-typescale-display-large-weight: 400;
+  --md-sys-typescale-display-large-line-height: 4rem; /* 64px */
+  
+  --md-sys-typescale-display-medium-font: 'Roboto';
+  --md-sys-typescale-display-medium-size: 2.8125rem; /* 45px */
+  --md-sys-typescale-display-medium-weight: 400;
+  --md-sys-typescale-display-medium-line-height: 3.25rem; /* 52px */
+  
+  --md-sys-typescale-display-small-font: 'Roboto';
+  --md-sys-typescale-display-small-size: 2.25rem; /* 36px */
+  --md-sys-typescale-display-small-weight: 400;
+  --md-sys-typescale-display-small-line-height: 2.75rem; /* 44px */
+
+  --md-sys-typescale-headline-large-font: 'Roboto';
+  --md-sys-typescale-headline-large-size: 2rem; /* 32px */
+  --md-sys-typescale-headline-large-weight: 400;
+  --md-sys-typescale-headline-large-line-height: 2.5rem; /* 40px */
+
+  --md-sys-typescale-headline-medium-font: 'Roboto';
+  --md-sys-typescale-headline-medium-size: 1.75rem; /* 28px */
+  --md-sys-typescale-headline-medium-weight: 400;
+  --md-sys-typescale-headline-medium-line-height: 2.25rem; /* 36px */
+
+  --md-sys-typescale-headline-small-font: 'Roboto';
+  --md-sys-typescale-headline-small-size: 1.5rem; /* 24px */
+  --md-sys-typescale-headline-small-weight: 400;
+  --md-sys-typescale-headline-small-line-height: 2rem; /* 32px */
+
+  --md-sys-typescale-title-large-font: 'Roboto';
+  --md-sys-typescale-title-large-size: 1.375rem; /* 22px */
+  --md-sys-typescale-title-large-weight: 400;
+  --md-sys-typescale-title-large-line-height: 1.75rem; /* 28px */
+
+  --md-sys-typescale-title-medium-font: 'Roboto';
+  --md-sys-typescale-title-medium-size: 1rem; /* 16px */
+  --md-sys-typescale-title-medium-weight: 500;
+  --md-sys-typescale-title-medium-line-height: 1.5rem; /* 24px */
+
+  --md-sys-typescale-title-small-font: 'Roboto';
+  --md-sys-typescale-title-small-size: 0.875rem; /* 14px */
+  --md-sys-typescale-title-small-weight: 500;
+  --md-sys-typescale-title-small-line-height: 1.25rem; /* 20px */
+
+  --md-sys-typescale-body-large-font: 'Roboto';
+  --md-sys-typescale-body-large-size: 1rem; /* 16px */
+  --md-sys-typescale-body-large-weight: 400;
+  --md-sys-typescale-body-large-line-height: 1.5rem; /* 24px */
+
+  --md-sys-typescale-body-medium-font: 'Roboto';
+  --md-sys-typescale-body-medium-size: 0.875rem; /* 14px */
+  --md-sys-typescale-body-medium-weight: 400;
+  --md-sys-typescale-body-medium-line-height: 1.25rem; /* 20px */
+
+  --md-sys-typescale-body-small-font: 'Roboto';
+  --md-sys-typescale-body-small-size: 0.75rem; /* 12px */
+  --md-sys-typescale-body-small-weight: 400;
+  --md-sys-typescale-body-small-line-height: 1rem; /* 16px */
+
+  --md-sys-typescale-label-large-font: 'Roboto';
+  --md-sys-typescale-label-large-size: 0.875rem; /* 14px */
+  --md-sys-typescale-label-large-weight: 500;
+  --md-sys-typescale-label-large-line-height: 1.25rem; /* 20px */
+
+  --md-sys-typescale-label-medium-font: 'Roboto';
+  --md-sys-typescale-label-medium-size: 0.75rem; /* 12px */
+  --md-sys-typescale-label-medium-weight: 500;
+  --md-sys-typescale-label-medium-line-height: 1rem; /* 16px */
+
+  --md-sys-typescale-label-small-font: 'Roboto';
+  --md-sys-typescale-label-small-size: 0.6875rem; /* 11px */
+  --md-sys-typescale-label-small-weight: 500;
+  --md-sys-typescale-label-small-line-height: 1rem; /* 16px */
+
+  /* Material Design 3 Shape Tokens */
+  --md-sys-shape-corner-none: 0px;
+  --md-sys-shape-corner-extra-small: 4px;
+  --md-sys-shape-corner-small: 8px;
+  --md-sys-shape-corner-medium: 12px;
+  --md-sys-shape-corner-large: 16px;
+  --md-sys-shape-corner-extra-large: 28px;
+  --md-sys-shape-corner-full: 9999px;
+
+  /* Material Design 3 Elevation (Shadows) */
+  --md-sys-elevation-level0: none;
+  --md-sys-elevation-level1: 0px 1px 3px 1px rgba(0, 0, 0, 0.15), 0px 1px 2px 0px rgba(0, 0, 0, 0.30);
+  --md-sys-elevation-level2: 0px 2px 6px 2px rgba(0, 0, 0, 0.15), 0px 1px 2px 0px rgba(0, 0, 0, 0.30);
+  --md-sys-elevation-level3: 0px 4px 8px 3px rgba(0, 0, 0, 0.15), 0px 1px 3px 0px rgba(0, 0, 0, 0.30);
+  --md-sys-elevation-level4: 0px 6px 10px 4px rgba(0, 0, 0, 0.15), 0px 2px 3px 0px rgba(0, 0, 0, 0.30);
+  --md-sys-elevation-level5: 0px 8px 12px 6px rgba(0, 0, 0, 0.15), 0px 4px 4px 0px rgba(0, 0, 0, 0.30);
+
+  /* Legacy mappings for current components */
+  --font-sans: var(--md-sys-typescale-body-large-font), system-ui, -apple-system, sans-serif;
+  --radius: var(--md-sys-shape-corner-medium);
+  --shadow: var(--md-sys-elevation-level1);
+  --shadow-md: var(--md-sys-elevation-level2);
+  --shadow-lg: var(--md-sys-elevation-level3);
+  --shadow-xl: var(--md-sys-elevation-level4);
+  --shadow-2xl: var(--md-sys-elevation-level5);
+
+  /* Chart colors using MD3 color tokens */
+  --chart-1: var(--md-sys-color-primary);
+  --chart-2: var(--md-sys-color-secondary);
+  --chart-3: var(--md-sys-color-tertiary);
+  --chart-4: var(--md-sys-color-error);
+  --chart-5: hsl(300, 60%, 60%);
+
+  /* Sidebar using surface colors */
+  --sidebar: var(--md-sys-color-surface-container-low);
+  --sidebar-foreground: var(--md-sys-color-on-surface);
+  --sidebar-primary: var(--md-sys-color-primary);
+  --sidebar-primary-foreground: var(--md-sys-color-on-primary);
+  --sidebar-accent: var(--md-sys-color-secondary-container);
+  --sidebar-accent-foreground: var(--md-sys-color-on-secondary-container);
+  --sidebar-border: var(--md-sys-color-outline-variant);
+  --sidebar-ring: var(--md-sys-color-primary);
 }
 
+/* Material Design 3 Dark Theme */
 .dark {
-  --background: hsl(0 0% 0%);
-  --foreground: hsl(200 6.6667% 91.1765%);
-  --card: hsl(228 9.8039% 10%);
-  --card-foreground: hsl(0 0% 85.0980%);
-  --popover: hsl(0 0% 0%);
-  --popover-foreground: hsl(200 6.6667% 91.1765%);
-  --primary: hsl(203.7736 87.6033% 52.5490%);
-  --primary-foreground: hsl(0 0% 100%);
-  --secondary: hsl(195.0000 15.3846% 94.9020%);
-  --secondary-foreground: hsl(210 25% 7.8431%);
-  --muted: hsl(0 0% 9.4118%);
-  --muted-foreground: hsl(210 3.3898% 46.2745%);
-  --accent: hsl(205.7143 70% 7.8431%);
-  --accent-foreground: hsl(203.7736 87.6033% 52.5490%);
-  --destructive: hsl(356.3033 90.5579% 54.3137%);
-  --destructive-foreground: hsl(0 0% 100%);
-  --border: hsl(210 5.2632% 14.9020%);
-  --input: hsl(207.6923 27.6596% 18.4314%);
-  --ring: hsl(202.8169 89.1213% 53.1373%);
-  --chart-1: hsl(203.8863 88.2845% 53.1373%);
-  --chart-2: hsl(159.7826 100% 36.0784%);
-  --chart-3: hsl(42.0290 92.8251% 56.2745%);
-  --chart-4: hsl(147.1429 78.5047% 41.9608%);
-  --chart-5: hsl(341.4894 75.2000% 50.9804%);
-  --sidebar: hsl(228 9.8039% 10%);
-  --sidebar-foreground: hsl(0 0% 85.0980%);
-  --sidebar-primary: hsl(202.8169 89.1213% 53.1373%);
-  --sidebar-primary-foreground: hsl(0 0% 100%);
-  --sidebar-accent: hsl(205.7143 70% 7.8431%);
-  --sidebar-accent-foreground: hsl(203.7736 87.6033% 52.5490%);
-  --sidebar-border: hsl(205.7143 15.7895% 26.0784%);
-  --sidebar-ring: hsl(202.8169 89.1213% 53.1373%);
-  --font-sans: Open Sans, sans-serif;
-  --font-serif: Georgia, serif;
-  --font-mono: Menlo, monospace;
-  --radius: 1.3rem;
-  --shadow-2xs: 0px 2px 0px 0px hsl(202.8169 89.1213% 53.1373% / 0.00);
-  --shadow-xs: 0px 2px 0px 0px hsl(202.8169 89.1213% 53.1373% / 0.00);
-  --shadow-sm: 0px 2px 0px 0px hsl(202.8169 89.1213% 53.1373% / 0.00), 0px 1px 2px -1px hsl(202.8169 89.1213% 53.1373% / 0.00);
-  --shadow: 0px 2px 0px 0px hsl(202.8169 89.1213% 53.1373% / 0.00), 0px 1px 2px -1px hsl(202.8169 89.1213% 53.1373% / 0.00);
-  --shadow-md: 0px 2px 0px 0px hsl(202.8169 89.1213% 53.1373% / 0.00), 0px 2px 4px -1px hsl(202.8169 89.1213% 53.1373% / 0.00);
-  --shadow-lg: 0px 2px 0px 0px hsl(202.8169 89.1213% 53.1373% / 0.00), 0px 4px 6px -1px hsl(202.8169 89.1213% 53.1373% / 0.00);
-  --shadow-xl: 0px 2px 0px 0px hsl(202.8169 89.1213% 53.1373% / 0.00), 0px 8px 10px -1px hsl(202.8169 89.1213% 53.1373% / 0.00);
-  --shadow-2xl: 0px 2px 0px 0px hsl(202.8169 89.1213% 53.1373% / 0.00);
+  /* Primary Colors - Dark */
+  --md-sys-color-primary: hsl(258, 100%, 80%);
+  --md-sys-color-on-primary: hsl(258, 100%, 5%);
+  --md-sys-color-primary-container: hsl(258, 100%, 20%);
+  --md-sys-color-on-primary-container: hsl(258, 100%, 90%);
+
+  /* Secondary Colors - Dark */
+  --md-sys-color-secondary: hsl(250, 30%, 70%);
+  --md-sys-color-on-secondary: hsl(250, 30%, 10%);
+  --md-sys-color-secondary-container: hsl(250, 30%, 25%);
+  --md-sys-color-on-secondary-container: hsl(250, 30%, 85%);
+
+  /* Tertiary Colors - Dark */
+  --md-sys-color-tertiary: hsl(350, 40%, 70%);
+  --md-sys-color-on-tertiary: hsl(350, 40%, 10%);
+  --md-sys-color-tertiary-container: hsl(350, 40%, 25%);
+  --md-sys-color-on-tertiary-container: hsl(350, 40%, 85%);
+
+  /* Error Colors - Dark */
+  --md-sys-color-error: hsl(0, 100%, 75%);
+  --md-sys-color-on-error: hsl(0, 100%, 5%);
+  --md-sys-color-error-container: hsl(0, 100%, 20%);
+  --md-sys-color-on-error-container: hsl(0, 100%, 85%);
+
+  /* Surface Colors - Dark */
+  --md-sys-color-surface: hsl(0, 0%, 6%);
+  --md-sys-color-on-surface: hsl(0, 0%, 90%);
+  --md-sys-color-surface-variant: hsl(270, 5%, 15%);
+  --md-sys-color-on-surface-variant: hsl(270, 5%, 70%);
+  --md-sys-color-surface-dim: hsl(0, 0%, 4%);
+  --md-sys-color-surface-bright: hsl(0, 0%, 24%);
+  --md-sys-color-surface-container-lowest: hsl(0, 0%, 4%);
+  --md-sys-color-surface-container-low: hsl(0, 0%, 8%);
+  --md-sys-color-surface-container: hsl(0, 0%, 11%);
+  --md-sys-color-surface-container-high: hsl(0, 0%, 15%);
+  --md-sys-color-surface-container-highest: hsl(0, 0%, 19%);
+
+  /* Background Colors - Dark */
+  --md-sys-color-background: hsl(0, 0%, 6%);
+  --md-sys-color-on-background: hsl(0, 0%, 90%);
+
+  /* Outline Colors - Dark */
+  --md-sys-color-outline: hsl(270, 5%, 50%);
+  --md-sys-color-outline-variant: hsl(270, 5%, 25%);
+
+  /* Component-specific mappings for Tailwind - Dark */
+  --background: var(--md-sys-color-background);
+  --foreground: var(--md-sys-color-on-background);
+  --card: var(--md-sys-color-surface-container-low);
+  --card-foreground: var(--md-sys-color-on-surface);
+  --popover: var(--md-sys-color-surface-container);
+  --popover-foreground: var(--md-sys-color-on-surface);
+  --primary: var(--md-sys-color-primary);
+  --primary-foreground: var(--md-sys-color-on-primary);
+  --secondary: var(--md-sys-color-secondary);
+  --secondary-foreground: var(--md-sys-color-on-secondary);
+  --muted: var(--md-sys-color-surface-variant);
+  --muted-foreground: var(--md-sys-color-on-surface-variant);
+  --accent: var(--md-sys-color-primary-container);
+  --accent-foreground: var(--md-sys-color-on-primary-container);
+  --destructive: var(--md-sys-color-error);
+  --destructive-foreground: var(--md-sys-color-on-error);
+  --border: var(--md-sys-color-outline-variant);
+  --input: var(--md-sys-color-surface-container-highest);
+  --ring: var(--md-sys-color-primary);
+
+  /* Sidebar using surface colors - Dark */
+  --sidebar: var(--md-sys-color-surface-container-low);
+  --sidebar-foreground: var(--md-sys-color-on-surface);
+  --sidebar-primary: var(--md-sys-color-primary);
+  --sidebar-primary-foreground: var(--md-sys-color-on-primary);
+  --sidebar-accent: var(--md-sys-color-secondary-container);
+  --sidebar-accent-foreground: var(--md-sys-color-on-secondary-container);
+  --sidebar-border: var(--md-sys-color-outline-variant);
+  --sidebar-ring: var(--md-sys-color-primary);
 }
 
 @layer base {
@@ -104,6 +281,157 @@
   }
 
   body {
-    @apply font-sans antialiased bg-background text-foreground;
+    @apply antialiased bg-background text-foreground;
+    font-family: var(--md-sys-typescale-body-large-font), system-ui, -apple-system, sans-serif;
+    font-size: var(--md-sys-typescale-body-large-size);
+    font-weight: var(--md-sys-typescale-body-large-weight);
+    line-height: var(--md-sys-typescale-body-large-line-height);
+  }
+
+  /* Material Design 3 Typography Classes */
+  .md-display-large {
+    font-family: var(--md-sys-typescale-display-large-font);
+    font-size: var(--md-sys-typescale-display-large-size);
+    font-weight: var(--md-sys-typescale-display-large-weight);
+    line-height: var(--md-sys-typescale-display-large-line-height);
+  }
+
+  .md-display-medium {
+    font-family: var(--md-sys-typescale-display-medium-font);
+    font-size: var(--md-sys-typescale-display-medium-size);
+    font-weight: var(--md-sys-typescale-display-medium-weight);
+    line-height: var(--md-sys-typescale-display-medium-line-height);
+  }
+
+  .md-display-small {
+    font-family: var(--md-sys-typescale-display-small-font);
+    font-size: var(--md-sys-typescale-display-small-size);
+    font-weight: var(--md-sys-typescale-display-small-weight);
+    line-height: var(--md-sys-typescale-display-small-line-height);
+  }
+
+  .md-headline-large {
+    font-family: var(--md-sys-typescale-headline-large-font);
+    font-size: var(--md-sys-typescale-headline-large-size);
+    font-weight: var(--md-sys-typescale-headline-large-weight);
+    line-height: var(--md-sys-typescale-headline-large-line-height);
+  }
+
+  .md-headline-medium {
+    font-family: var(--md-sys-typescale-headline-medium-font);
+    font-size: var(--md-sys-typescale-headline-medium-size);
+    font-weight: var(--md-sys-typescale-headline-medium-weight);
+    line-height: var(--md-sys-typescale-headline-medium-line-height);
+  }
+
+  .md-headline-small {
+    font-family: var(--md-sys-typescale-headline-small-font);
+    font-size: var(--md-sys-typescale-headline-small-size);
+    font-weight: var(--md-sys-typescale-headline-small-weight);
+    line-height: var(--md-sys-typescale-headline-small-line-height);
+  }
+
+  .md-title-large {
+    font-family: var(--md-sys-typescale-title-large-font);
+    font-size: var(--md-sys-typescale-title-large-size);
+    font-weight: var(--md-sys-typescale-title-large-weight);
+    line-height: var(--md-sys-typescale-title-large-line-height);
+  }
+
+  .md-title-medium {
+    font-family: var(--md-sys-typescale-title-medium-font);
+    font-size: var(--md-sys-typescale-title-medium-size);
+    font-weight: var(--md-sys-typescale-title-medium-weight);
+    line-height: var(--md-sys-typescale-title-medium-line-height);
+  }
+
+  .md-title-small {
+    font-family: var(--md-sys-typescale-title-small-font);
+    font-size: var(--md-sys-typescale-title-small-size);
+    font-weight: var(--md-sys-typescale-title-small-weight);
+    line-height: var(--md-sys-typescale-title-small-line-height);
+  }
+
+  .md-body-large {
+    font-family: var(--md-sys-typescale-body-large-font);
+    font-size: var(--md-sys-typescale-body-large-size);
+    font-weight: var(--md-sys-typescale-body-large-weight);
+    line-height: var(--md-sys-typescale-body-large-line-height);
+  }
+
+  .md-body-medium {
+    font-family: var(--md-sys-typescale-body-medium-font);
+    font-size: var(--md-sys-typescale-body-medium-size);
+    font-weight: var(--md-sys-typescale-body-medium-weight);
+    line-height: var(--md-sys-typescale-body-medium-line-height);
+  }
+
+  .md-body-small {
+    font-family: var(--md-sys-typescale-body-small-font);
+    font-size: var(--md-sys-typescale-body-small-size);
+    font-weight: var(--md-sys-typescale-body-small-weight);
+    line-height: var(--md-sys-typescale-body-small-line-height);
+  }
+
+  .md-label-large {
+    font-family: var(--md-sys-typescale-label-large-font);
+    font-size: var(--md-sys-typescale-label-large-size);
+    font-weight: var(--md-sys-typescale-label-large-weight);
+    line-height: var(--md-sys-typescale-label-large-line-height);
+  }
+
+  .md-label-medium {
+    font-family: var(--md-sys-typescale-label-medium-font);
+    font-size: var(--md-sys-typescale-label-medium-size);
+    font-weight: var(--md-sys-typescale-label-medium-weight);
+    line-height: var(--md-sys-typescale-label-medium-line-height);
+  }
+
+  .md-label-small {
+    font-family: var(--md-sys-typescale-label-small-font);
+    font-size: var(--md-sys-typescale-label-small-size);
+    font-weight: var(--md-sys-typescale-label-small-weight);
+    line-height: var(--md-sys-typescale-label-small-line-height);
+  }
+
+  /* Material Design 3 Component Styles */
+  .md-surface {
+    background-color: var(--md-sys-color-surface);
+    color: var(--md-sys-color-on-surface);
+  }
+
+  .md-surface-variant {
+    background-color: var(--md-sys-color-surface-variant);
+    color: var(--md-sys-color-on-surface-variant);
+  }
+
+  .md-primary-container {
+    background-color: var(--md-sys-color-primary-container);
+    color: var(--md-sys-color-on-primary-container);
+  }
+
+  .md-secondary-container {
+    background-color: var(--md-sys-color-secondary-container);
+    color: var(--md-sys-color-on-secondary-container);
+  }
+
+  .md-elevation-1 {
+    box-shadow: var(--md-sys-elevation-level1);
+  }
+
+  .md-elevation-2 {
+    box-shadow: var(--md-sys-elevation-level2);
+  }
+
+  .md-elevation-3 {
+    box-shadow: var(--md-sys-elevation-level3);
+  }
+
+  .md-elevation-4 {
+    box-shadow: var(--md-sys-elevation-level4);
+  }
+
+  .md-elevation-5 {
+    box-shadow: var(--md-sys-elevation-level5);
   }
 }

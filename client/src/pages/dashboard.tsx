@@ -34,13 +34,19 @@ export default function Dashboard() {
 
   return (
     <div className="space-y-6" data-testid="dashboard-view">
-      {/* KPI Cards */}
+      {/* Page Header - Material Design 3 Typography */}
+      <div className="mb-8">
+        <h1 className="md-headline-large text-md-surface-on mb-2">Dashboard</h1>
+        <p className="md-body-large text-md-surface-on-variant">National Dialogue programme analytics overview</p>
+      </div>
+
+      {/* KPI Cards with Material Design 3 styling */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <StatsCard
           title="Total Submissions"
           value={analytics?.submissions.total || 0}
           subtitle={`+${submissionsGrowth.toFixed(0)}% from last week`}
-          icon={<Inbox className="h-6 w-6 text-blue-600" />}
+          icon={<Inbox className="h-6 w-6 text-md-primary" />}
           trend={{ value: `${submissionsGrowth.toFixed(0)}%`, isPositive: submissionsGrowth > 0 }}
         />
 
@@ -48,14 +54,14 @@ export default function Dashboard() {
           title="Active Cases"
           value={analytics?.cases.active || 0}
           subtitle={`${overdueCases} overdue`}
-          icon={<Briefcase className="h-6 w-6 text-amber-600" />}
+          icon={<Briefcase className="h-6 w-6 text-md-secondary" />}
         />
 
         <StatsCard
           title="Avg. Sentiment"
           value={`${Math.round((avgSentiment + 1) * 50)}%`}
           subtitle="Mostly positive"
-          icon={<Heart className="h-6 w-6 text-emerald-600" />}
+          icon={<Heart className="h-6 w-6 text-md-tertiary" />}
           trend={{ value: "Positive", isPositive: avgSentiment > 0 }}
         />
 
@@ -63,7 +69,7 @@ export default function Dashboard() {
           title="Response Rate"
           value="89%"
           subtitle="+5% this month"
-          icon={<TrendingUp className="h-6 w-6 text-purple-600" />}
+          icon={<TrendingUp className="h-6 w-6 text-md-primary" />}
           trend={{ value: "5%", isPositive: true }}
         />
       </div>

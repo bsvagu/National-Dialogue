@@ -6,6 +6,8 @@ The National Dialogue ZA Admin Portal is a full-stack TypeScript application des
 
 The application features a React-based admin interface with a Node.js backend, supporting multi-channel submission processing (mobile, web, WhatsApp, social media), automated content moderation, case routing to appropriate departments, and real-time analytics dashboards.
 
+**Design System**: The application implements a comprehensive Google Material Design 3 (MD3) system based on official m3.material.io specifications, featuring a complete 4-level token hierarchy (reference, system, component, implementation) with 141+ system tokens for consistent theming and proper dark/light mode support.
+
 ## User Preferences
 
 Preferred communication style: Simple, everyday language.
@@ -16,7 +18,11 @@ Preferred communication style: Simple, everyday language.
 - **Framework**: React 18 with TypeScript, using functional components and hooks
 - **Routing**: Wouter for lightweight client-side routing
 - **State Management**: TanStack Query (React Query) for server state management and caching
-- **UI Framework**: Shadcn/ui components built on Radix UI primitives with Tailwind CSS
+- **Design System**: Complete Google Material Design 3 (MD3) implementation with official m3.material.io specifications
+- **UI Framework**: Shadcn/ui components built on Radix UI primitives with Tailwind CSS, enhanced with MD3 design tokens
+- **Typography**: Roboto font family with complete MD3 typescale (display, headline, title, body, label variants)
+- **Color System**: MD3 system colors with proper semantic roles (primary, secondary, tertiary, error, surface containers)
+- **Theme Support**: Light/dark/system theme switching with persistent storage
 - **Form Handling**: React Hook Form with Zod schema validation
 - **Build Tool**: Vite for fast development and optimized production builds
 
@@ -61,6 +67,8 @@ The system uses a comprehensive relational data model including:
 - **Hot Reload**: Vite HMR for frontend, tsx for backend development
 - **Type Safety**: End-to-end TypeScript with shared schemas
 - **Build Process**: esbuild for server bundling, Vite for client optimization
+- **Design Tokens**: Material Design 3 CSS custom properties system with complete token hierarchy
+- **Theme System**: Persistent theme switching (light/dark/system) with context provider architecture
 
 ## External Dependencies
 
@@ -77,9 +85,11 @@ The system uses a comprehensive relational data model including:
 - **jsonwebtoken**: JWT token generation and validation
 
 ### UI Component Libraries
-- **Radix UI**: Headless, accessible UI primitives
-- **Tailwind CSS**: Utility-first CSS framework
-- **Lucide React**: Icon library
+- **Material Design 3**: Complete implementation with 141+ system color tokens, elevation system, and shape tokens
+- **Radix UI**: Headless, accessible UI primitives enhanced with MD3 styling
+- **Tailwind CSS**: Utility-first CSS framework extended with Material Design 3 color mappings and typography classes
+- **Roboto Font**: Official Google Fonts implementation for MD3 typography scale
+- **Lucide React**: Icon library for consistent iconography
 
 ### Development Tools
 - **Vite**: Frontend build tool and development server
