@@ -66,8 +66,12 @@ export function authenticateToken(req: AuthenticatedRequest, res: Response, next
     return res.status(401).json({ error: { code: 'INVALID_TOKEN', message: 'Invalid or expired token' } });
   }
 
-  // We'll attach the full user object in the route handlers
-  req.user = { id: payload.userId } as UserWithRoles;
+  // Attach the JWT payload with user info and roles
+  req.user = {
+    id: payload.userId,
+    email: payload.email,
+    roles: payload.roles
+  } as any;
   next();
 }
 
@@ -77,9 +81,9 @@ export function requirePermission(permission: string) {
       return res.status(401).json({ error: { code: 'UNAUTHORIZED', message: 'Authentication required' } });
     }
 
-    // For now, we'll implement basic role-based checks
-    // In a full implementation, you'd check against actual permissions
-    const userRoles = req.user.userRoles?.map(ur => ur.role.name) || [];
+    // Get user roles from JWT token payload  
+    const payload = req.user as any;
+    const userRoles = payload.roles || [];
     
     // SuperAdmin has all permissions
     if (userRoles.includes('SuperAdmin')) {
@@ -94,7 +98,7 @@ export function requirePermission(permission: string) {
       'DeptOfficer': ['manage_assigned_cases', 'view_department_data'],
     };
 
-    const hasPermission = userRoles.some(role => 
+    const hasPermission = userRoles.some((role: string) => 
       rolePermissions[role]?.includes(permission)
     );
 

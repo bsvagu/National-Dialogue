@@ -90,7 +90,7 @@ export default function Analytics() {
                   <SelectValue placeholder="All Provinces" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">All Provinces</SelectItem>
+                  <SelectItem value="all">All Provinces</SelectItem>
                   <SelectItem value="gauteng">Gauteng</SelectItem>
                   <SelectItem value="western_cape">Western Cape</SelectItem>
                   <SelectItem value="kwazulu_natal">KwaZulu-Natal</SelectItem>

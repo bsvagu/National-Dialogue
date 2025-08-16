@@ -48,7 +48,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get('/api/auth/me', authenticateToken, async (req: AuthenticatedRequest, res) => {
     try {
-      const user = await storage.getUserByEmail(req.user!.email);
+      // Use the user ID from JWT token
+      const userId = (req.user as any).id;
+      const user = await storage.getUserByEmail((req.user as any).email);
       if (!user) {
         return res.status(404).json({
           error: { code: 'USER_NOT_FOUND', message: 'User not found' }
