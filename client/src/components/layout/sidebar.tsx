@@ -53,7 +53,7 @@ export default function Sidebar() {
   };
 
   return (
-    <div className="w-72 bg-md-surface-container flex flex-col shadow-md-2">
+    <div className="w-72 bg-md-surface-container flex flex-col shadow-md-2 fixed left-0 top-0 h-full z-10">
       {/* Logo - Material Design 3 */}
       <div className="p-6 border-b border-md-outline-variant">
         <div className="flex items-center space-x-3">

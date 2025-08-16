@@ -22,9 +22,9 @@ interface CaseWithDetails extends Case {
 
 export default function Cases() {
   const [filters, setFilters] = useState({
-    state: "",
-    department: "",
-    priority: "",
+    state: "all",
+    department: "all",
+    priority: "all",
   });
 
   const { toast } = useToast();
@@ -121,37 +121,37 @@ export default function Cases() {
     
     return (
       <div 
-        className="border border-slate-200 rounded-lg p-3 hover:bg-slate-50 cursor-pointer transition-colors"
+        className="border border-md-outline-variant rounded-md-lg p-4 hover:bg-md-surface-container-high cursor-pointer transition-all duration-200 bg-md-surface shadow-md-1"
         data-testid={`case-card-${caseItem.id}`}
       >
-        <div className="flex items-start justify-between mb-2">
-          <span className="text-sm font-medium text-slate-900">
+        <div className="flex items-start justify-between mb-3">
+          <span className="md-body-medium font-medium text-md-surface-on">
             #{caseItem.id.slice(-8)}
           </span>
-          <Badge className={`${getPriorityColor(caseItem.priority)} capitalize`}>
+          <Badge className={`${getPriorityColor(caseItem.priority)} capitalize md-label-small`}>
             {caseItem.priority}
           </Badge>
         </div>
         
-        <p className="text-sm text-slate-600 mb-3 line-clamp-2">
+        <p className="md-body-small text-md-surface-on-variant mb-3 line-clamp-2">
           Case from submission - Details would be loaded from API
         </p>
         
-        <div className="flex items-center justify-between text-xs mb-2">
-          <span className="text-slate-500">
+        <div className="flex items-center justify-between mb-2">
+          <span className="md-label-small text-md-surface-on-variant">
             Department: {departments?.find(d => d.id === caseItem.departmentId)?.name || 'Unknown'}
           </span>
           {dueStatus && (
-            <span className={dueStatus.color}>{dueStatus.label}</span>
+            <span className={`${dueStatus.color} md-label-small font-medium`}>{dueStatus.label}</span>
           )}
         </div>
         
         {caseItem.assigneeId && (
-          <div className="flex items-center mt-2">
-            <div className="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center text-white text-xs mr-2">
+          <div className="flex items-center mt-3">
+            <div className="w-6 h-6 bg-md-primary rounded-md-full flex items-center justify-center text-md-primary-on md-label-small mr-2">
               A
             </div>
-            <span className="text-xs text-slate-600">Assigned</span>
+            <span className="md-label-small text-md-surface-on-variant">Assigned</span>
           </div>
         )}
       </div>
@@ -176,8 +176,13 @@ export default function Cases() {
 
   return (
     <div className="space-y-6" data-testid="cases-view">
-      {/* Filters */}
-      <Card>
+      {/* Page Header - Material Design 3 Typography */}
+      <div className="mb-8">
+        <h1 className="md-headline-large text-md-surface-on mb-2">Cases</h1>
+        <p className="md-body-large text-md-surface-on-variant">Track and manage case workflow</p>
+      </div>
+      {/* Filters - Material Design 3 */}
+      <Card className="bg-md-surface-container border-md-outline-variant shadow-md-1">
         <CardContent className="p-6">
           <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between space-y-4 lg:space-y-0">
             <div className="flex flex-wrap items-center gap-3">
@@ -189,7 +194,7 @@ export default function Cases() {
                   <SelectValue placeholder="All States" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">All States</SelectItem>
+                  <SelectItem value="all">All States</SelectItem>
                   <SelectItem value="open">Open</SelectItem>
                   <SelectItem value="investigating">Investigating</SelectItem>
                   <SelectItem value="awaiting_info">Awaiting Info</SelectItem>
@@ -222,7 +227,7 @@ export default function Cases() {
                   <SelectValue placeholder="All Priorities" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">All Priorities</SelectItem>
+                  <SelectItem value="all">All Priorities</SelectItem>
                   <SelectItem value="high">High</SelectItem>
                   <SelectItem value="medium">Medium</SelectItem>
                   <SelectItem value="low">Low</SelectItem>
@@ -230,7 +235,7 @@ export default function Cases() {
               </Select>
             </div>
 
-            <Button className="bg-blue-600 hover:bg-blue-700" data-testid="button-create-case">
+            <Button className="bg-md-primary hover:bg-md-primary-container text-md-primary-on hover:text-md-primary-on-container md-label-large" data-testid="button-create-case">
               <Plus className="mr-2 h-4 w-4" />
               New Case
             </Button>
@@ -238,14 +243,14 @@ export default function Cases() {
         </CardContent>
       </Card>
 
-      {/* Cases Kanban Board */}
+      {/* Cases Kanban Board - Material Design 3 */}
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
         {/* Open Cases */}
-        <Card>
+        <Card className="bg-md-surface-container border-md-outline-variant shadow-md-1">
           <CardHeader className="pb-4">
             <div className="flex items-center justify-between">
-              <CardTitle className="text-base">Open Cases</CardTitle>
-              <Badge variant="secondary">{groupedCases.open.length}</Badge>
+              <CardTitle className="md-title-medium text-md-surface-on">Open Cases</CardTitle>
+              <Badge variant="secondary" className="bg-md-secondary-container text-md-secondary-on-container md-label-medium">{groupedCases.open.length}</Badge>
             </div>
           </CardHeader>
           <CardContent className="space-y-3 max-h-96 overflow-y-auto">
@@ -260,11 +265,11 @@ export default function Cases() {
         </Card>
 
         {/* In Progress Cases */}
-        <Card>
+        <Card className="bg-md-surface-container border-md-outline-variant shadow-md-1">
           <CardHeader className="pb-4">
             <div className="flex items-center justify-between">
-              <CardTitle className="text-base">Investigating</CardTitle>
-              <Badge variant="secondary">{groupedCases.investigating.length}</Badge>
+              <CardTitle className="md-title-medium text-md-surface-on">Investigating</CardTitle>
+              <Badge variant="secondary" className="bg-md-secondary-container text-md-secondary-on-container md-label-medium">{groupedCases.investigating.length}</Badge>
             </div>
           </CardHeader>
           <CardContent className="space-y-3 max-h-96 overflow-y-auto">
@@ -279,11 +284,11 @@ export default function Cases() {
         </Card>
 
         {/* Awaiting Info Cases */}
-        <Card>
+        <Card className="bg-md-surface-container border-md-outline-variant shadow-md-1">
           <CardHeader className="pb-4">
             <div className="flex items-center justify-between">
-              <CardTitle className="text-base">Awaiting Info</CardTitle>
-              <Badge variant="secondary">{groupedCases.awaiting_info.length}</Badge>
+              <CardTitle className="md-title-medium text-md-surface-on">Awaiting Info</CardTitle>
+              <Badge variant="secondary" className="bg-md-secondary-container text-md-secondary-on-container md-label-medium">{groupedCases.awaiting_info.length}</Badge>
             </div>
           </CardHeader>
           <CardContent className="space-y-3 max-h-96 overflow-y-auto">
@@ -298,11 +303,11 @@ export default function Cases() {
         </Card>
 
         {/* Resolved Cases */}
-        <Card>
+        <Card className="bg-md-surface-container border-md-outline-variant shadow-md-1">
           <CardHeader className="pb-4">
             <div className="flex items-center justify-between">
-              <CardTitle className="text-base">Resolved</CardTitle>
-              <Badge variant="secondary">{groupedCases.resolved.length}</Badge>
+              <CardTitle className="md-title-medium text-md-surface-on">Resolved</CardTitle>
+              <Badge variant="secondary" className="bg-md-secondary-container text-md-secondary-on-container md-label-medium">{groupedCases.resolved.length}</Badge>
             </div>
           </CardHeader>
           <CardContent className="space-y-3 max-h-96 overflow-y-auto">

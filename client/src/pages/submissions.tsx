@@ -19,9 +19,9 @@ interface SubmissionsResponse {
 
 export default function Submissions() {
   const [filters, setFilters] = useState({
-    status: "",
-    province: "",
-    channel: "",
+    status: "all",
+    province: "all",
+    channel: "all",
     search: "",
   });
   const [pagination, setPagination] = useState({ limit: 20, offset: 0 });
@@ -32,16 +32,6 @@ export default function Submissions() {
 
   const { data, isLoading } = useQuery<SubmissionsResponse>({
     queryKey: ["/api/submissions", filters, pagination],
-    queryFn: async () => {
-      const params = new URLSearchParams({
-        ...filters,
-        limit: pagination.limit.toString(),
-        offset: pagination.offset.toString(),
-      });
-      
-      const res = await apiRequest("GET", `/api/submissions?${params}`);
-      return await res.json();
-    },
   });
 
   const updateSubmissionMutation = useMutation({
@@ -256,8 +246,13 @@ export default function Submissions() {
 
   return (
     <div className="space-y-6" data-testid="submissions-view">
-      {/* Filters and Actions */}
-      <Card>
+      {/* Page Header - Material Design 3 Typography */}
+      <div className="mb-8">
+        <h1 className="md-headline-large text-md-surface-on mb-2">Submissions</h1>
+        <p className="md-body-large text-md-surface-on-variant">Manage and moderate citizen submissions</p>
+      </div>
+      {/* Filters and Actions - Material Design 3 */}
+      <Card className="bg-md-surface-container border-md-outline-variant shadow-md-1">
         <CardContent className="p-6">
           <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between space-y-4 lg:space-y-0">
             <div className="flex flex-wrap items-center gap-3">
@@ -265,11 +260,11 @@ export default function Submissions() {
                 value={filters.status} 
                 onValueChange={(value) => setFilters(prev => ({ ...prev, status: value }))}
               >
-                <SelectTrigger className="w-40">
+                <SelectTrigger className="w-40 bg-md-surface border-md-outline-variant hover:bg-md-surface-container-high">
                   <SelectValue placeholder="All Status" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">All Status</SelectItem>
+                  <SelectItem value="all">All Status</SelectItem>
                   <SelectItem value="new">New</SelectItem>
                   <SelectItem value="moderated">Moderated</SelectItem>
                   <SelectItem value="routed">Routed</SelectItem>
@@ -285,7 +280,7 @@ export default function Submissions() {
                   <SelectValue placeholder="All Provinces" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">All Provinces</SelectItem>
+                  <SelectItem value="all">All Provinces</SelectItem>
                   <SelectItem value="gauteng">Gauteng</SelectItem>
                   <SelectItem value="western_cape">Western Cape</SelectItem>
                   <SelectItem value="kwazulu_natal">KwaZulu-Natal</SelectItem>
@@ -301,7 +296,7 @@ export default function Submissions() {
                   <SelectValue placeholder="All Channels" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">All Channels</SelectItem>
+                  <SelectItem value="all">All Channels</SelectItem>
                   <SelectItem value="mobile">Mobile App</SelectItem>
                   <SelectItem value="web">Web Portal</SelectItem>
                   <SelectItem value="whatsapp">WhatsApp</SelectItem>
@@ -322,13 +317,13 @@ export default function Submissions() {
               <Button
                 onClick={handleBulkApprove}
                 disabled={selectedIds.length === 0 || bulkApproveMutation.isPending}
-                className="bg-blue-600 hover:bg-blue-700"
+                className="bg-md-primary hover:bg-md-primary-container text-md-primary-on hover:text-md-primary-on-container md-label-large"
                 data-testid="button-bulk-approve"
               >
                 <Check className="mr-2 h-4 w-4" />
                 Bulk Approve ({selectedIds.length})
               </Button>
-              <Button variant="outline" data-testid="button-export">
+              <Button variant="outline" className="border-md-outline hover:bg-md-surface-container-high md-label-large" data-testid="button-export">
                 <Download className="mr-2 h-4 w-4" />
                 Export
               </Button>
@@ -337,11 +332,11 @@ export default function Submissions() {
         </CardContent>
       </Card>
 
-      {/* Submissions Table */}
-      <Card>
+      {/* Submissions Table - Material Design 3 */}
+      <Card className="bg-md-surface-container border-md-outline-variant shadow-md-1">
         <CardHeader>
           <div className="flex items-center justify-between">
-            <CardTitle>Submissions Queue</CardTitle>
+            <CardTitle className="md-title-large text-md-surface-on">Submissions Queue</CardTitle>
             <div className="flex items-center space-x-2">
               <Checkbox
                 checked={
