@@ -13,6 +13,8 @@ import Cases from "@/pages/cases";
 import Users from "@/pages/users";
 import Departments from "@/pages/departments";
 import Analytics from "@/pages/analytics";
+import Taxonomy from "@/pages/taxonomy";
+import Polls from "@/pages/polls";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -43,6 +45,8 @@ function Router() {
         <Route path="/users" component={Users} />
         <Route path="/departments" component={Departments} />
         <Route path="/analytics" component={Analytics} />
+        <Route path="/taxonomy" component={Taxonomy} />
+        <Route path="/polls" component={Polls} />
         <Route component={NotFound} />
       </Switch>
     </MainLayout>

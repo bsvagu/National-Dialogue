@@ -13,8 +13,13 @@ import {
   BarChart2, 
   History, 
   Settings, 
-  LogOut 
+  LogOut,
+  ChevronLeft,
+  ChevronRight,
+  Menu
 } from "lucide-react";
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
 
 const navigation = [
   { name: "Dashboard", href: "/dashboard", icon: BarChart3 },
@@ -35,7 +40,12 @@ const systemNav = [
   { name: "Settings", href: "/settings", icon: Settings },
 ];
 
-export default function Sidebar() {
+interface SidebarProps {
+  isCollapsed: boolean;
+  onToggle: () => void;
+}
+
+export default function Sidebar({ isCollapsed, onToggle }: SidebarProps) {
   const [location] = useLocation();
   const { user } = useAuth();
   const logout = useLogout();
@@ -53,17 +63,37 @@ export default function Sidebar() {
   };
 
   return (
-    <div className="w-72 bg-md-surface-container flex flex-col shadow-md-2 fixed left-0 top-0 h-full z-10">
-      {/* Logo - Material Design 3 */}
-      <div className="p-6 border-b border-md-outline-variant">
-        <div className="flex items-center space-x-3">
-          <div className="w-10 h-10 bg-md-primary rounded-md-base flex items-center justify-center">
-            <MessageCircle className="h-6 w-6 text-md-primary-on" />
+    <div className={cn(
+      "bg-md-surface-container flex flex-col shadow-md-2 fixed left-0 top-0 h-full z-10 transition-all duration-300",
+      isCollapsed ? "w-16" : "w-72"
+    )}>
+      {/* Logo and Toggle - Material Design 3 */}
+      <div className="p-4 border-b border-md-outline-variant">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-3">
+            <div className="w-10 h-10 bg-md-primary rounded-md-base flex items-center justify-center">
+              <MessageCircle className="h-6 w-6 text-md-primary-on" />
+            </div>
+            {!isCollapsed && (
+              <div>
+                <h1 className="md-title-large text-md-surface-on">National Dialogue</h1>
+                <p className="md-body-small text-md-surface-on-variant">Admin Portal</p>
+              </div>
+            )}
           </div>
-          <div>
-            <h1 className="md-title-large text-md-surface-on">National Dialogue</h1>
-            <p className="md-body-small text-md-surface-on-variant">Admin Portal</p>
-          </div>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={onToggle}
+            className="h-8 w-8 text-md-surface-on-variant hover:text-md-surface-on hover:bg-md-surface-container-high"
+            data-testid="sidebar-toggle"
+          >
+            {isCollapsed ? (
+              <ChevronRight className="h-4 w-4" />
+            ) : (
+              <ChevronLeft className="h-4 w-4" />
+            )}
+          </Button>
         </div>
       </div>
 
@@ -78,19 +108,25 @@ export default function Sidebar() {
               key={item.name}
               href={item.href}
               className={cn(
-                "flex items-center space-x-3 px-3 py-3 rounded-md-lg transition-all duration-200 md-label-large",
+                "flex items-center rounded-md-lg transition-all duration-200",
+                isCollapsed ? "justify-center px-3 py-3" : "space-x-3 px-3 py-3 md-label-large",
                 isActive 
                   ? "bg-md-primary-container text-md-primary-on-container shadow-md-1" 
                   : "text-md-surface-on-variant hover:text-md-surface-on hover:bg-md-surface-container-high"
               )}
               data-testid={`link-${item.name.toLowerCase().replace(/\s+/g, '-')}`}
+              title={isCollapsed ? item.name : undefined}
             >
               <Icon className="h-5 w-5" />
-              <span>{item.name}</span>
-              {item.badge && (
-                <span className="ml-auto bg-md-error text-md-error-on md-label-small px-2 py-1 rounded-md-full">
-                  {item.badge}
-                </span>
+              {!isCollapsed && (
+                <>
+                  <span>{item.name}</span>
+                  {item.badge && (
+                    <span className="ml-auto bg-md-error text-md-error-on md-label-small px-2 py-1 rounded-md-full">
+                      {item.badge}
+                    </span>
+                  )}
+                </>
               )}
             </Link>
           );
@@ -98,9 +134,11 @@ export default function Sidebar() {
 
         {/* Management Section */}
         <div className="pt-6 border-t border-md-outline-variant mt-4">
-          <h3 className="md-label-small text-md-surface-on-variant uppercase tracking-wider mb-3 px-3">
-            Management
-          </h3>
+          {!isCollapsed && (
+            <h3 className="md-label-small text-md-surface-on-variant uppercase tracking-wider mb-3 px-3">
+              Management
+            </h3>
+          )}
           {managementNav.map((item) => {
             const Icon = item.icon;
             const isActive = location === item.href;
@@ -110,15 +148,17 @@ export default function Sidebar() {
                 key={item.name}
                 href={item.href}
                 className={cn(
-                  "flex items-center space-x-3 px-3 py-3 rounded-md-lg transition-all duration-200 md-label-large",
+                  "flex items-center rounded-md-lg transition-all duration-200",
+                  isCollapsed ? "justify-center px-3 py-3" : "space-x-3 px-3 py-3 md-label-large",
                   isActive 
                     ? "bg-md-secondary-container text-md-secondary-on-container shadow-md-1" 
                     : "text-md-surface-on-variant hover:text-md-surface-on hover:bg-md-surface-container-high"
                 )}
                 data-testid={`link-${item.name.toLowerCase().replace(/\s+/g, '-')}`}
+                title={isCollapsed ? item.name : undefined}
               >
                 <Icon className="h-5 w-5" />
-                <span>{item.name}</span>
+                {!isCollapsed && <span>{item.name}</span>}
               </Link>
             );
           })}
@@ -135,15 +175,17 @@ export default function Sidebar() {
                 key={item.name}
                 href={item.href}
                 className={cn(
-                  "flex items-center space-x-3 px-3 py-3 rounded-md-lg transition-all duration-200 md-label-large",
+                  "flex items-center rounded-md-lg transition-all duration-200",
+                  isCollapsed ? "justify-center px-3 py-3" : "space-x-3 px-3 py-3 md-label-large",
                   isActive 
                     ? "bg-md-tertiary-container text-md-tertiary-on-container shadow-md-1" 
                     : "text-md-surface-on-variant hover:text-md-surface-on hover:bg-md-surface-container-high"
                 )}
                 data-testid={`link-${item.name.toLowerCase().replace(/\s+/g, '-')}`}
+                title={isCollapsed ? item.name : undefined}
               >
                 <Icon className="h-5 w-5" />
-                <span>{item.name}</span>
+                {!isCollapsed && <span>{item.name}</span>}
               </Link>
             );
           })}
@@ -152,28 +194,45 @@ export default function Sidebar() {
 
       {/* User Profile - Material Design 3 */}
       <div className="p-4 border-t border-md-outline-variant bg-md-surface-container-low">
-        <div className="flex items-center space-x-3">
+        <div className={cn(
+          "flex items-center",
+          isCollapsed ? "justify-center" : "space-x-3"
+        )}>
           <div className="w-10 h-10 bg-md-primary rounded-md-full flex items-center justify-center">
             <span className="md-label-large text-md-primary-on">
               {user ? getInitials(user.name) : "U"}
             </span>
           </div>
-          <div className="flex-1 min-w-0">
-            <p className="md-body-medium text-md-surface-on truncate font-medium">
-              {user?.name || "User"}
-            </p>
-            <p className="md-body-small text-md-surface-on-variant">
-              {user?.roles[0] || "Role"}
-            </p>
-          </div>
-          <button 
-            onClick={handleLogout}
-            className="p-2 text-md-surface-on-variant hover:text-md-surface-on hover:bg-md-surface-container-high transition-all duration-200 rounded-md-full"
-            title="Sign out"
-            data-testid="button-logout"
-          >
-            <LogOut className="h-4 w-4" />
-          </button>
+          {!isCollapsed && (
+            <>
+              <div className="flex-1 min-w-0">
+                <p className="md-body-medium text-md-surface-on truncate font-medium">
+                  {user?.name || "User"}
+                </p>
+                <p className="md-body-small text-md-surface-on-variant">
+                  {user?.roles[0] || "Role"}
+                </p>
+              </div>
+              <button 
+                onClick={handleLogout}
+                className="p-2 text-md-surface-on-variant hover:text-md-surface-on hover:bg-md-surface-container-high transition-all duration-200 rounded-md-full"
+                title="Sign out"
+                data-testid="button-logout"
+              >
+                <LogOut className="h-4 w-4" />
+              </button>
+            </>
+          )}
+          {isCollapsed && (
+            <button 
+              onClick={handleLogout}
+              className="absolute bottom-4 right-4 p-2 text-md-surface-on-variant hover:text-md-surface-on hover:bg-md-surface-container-high transition-all duration-200 rounded-md-full"
+              title="Sign out"
+              data-testid="button-logout"
+            >
+              <LogOut className="h-4 w-4" />
+            </button>
+          )}
         </div>
       </div>
     </div>
