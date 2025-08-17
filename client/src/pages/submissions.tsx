@@ -95,7 +95,7 @@ export default function Submissions() {
 
   const handleSelectAll = (checked: boolean) => {
     if (checked) {
-      setSelectedIds(data?.submissions.map(s => s.id) || []);
+      setSelectedIds(data?.submissions?.map(s => s.id) || []);
     } else {
       setSelectedIds([]);
     }
@@ -247,20 +247,20 @@ export default function Submissions() {
   return (
     <div className="space-y-6" data-testid="submissions-view">
       {/* Page Header - Material Design 3 Typography */}
-      <div className="mb-8">
-        <h1 className="md-headline-large text-md-surface-on mb-2">Submissions</h1>
-        <p className="md-body-large text-md-surface-on-variant">Manage and moderate citizen submissions</p>
+      <div className="mb-6 sm:mb-8">
+        <h1 className="md-headline-medium sm:md-headline-large text-md-surface-on mb-2">Submissions</h1>
+        <p className="md-body-medium sm:md-body-large text-md-surface-on-variant">Manage and moderate citizen submissions</p>
       </div>
       {/* Filters and Actions - Material Design 3 */}
       <Card className="bg-md-surface-container border-md-outline-variant shadow-md-1">
-        <CardContent className="p-6">
-          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between space-y-4 lg:space-y-0">
-            <div className="flex flex-wrap items-center gap-3">
+        <CardContent className="p-3 sm:p-6">
+          <div className="flex flex-col space-y-4 sm:space-y-4 lg:flex-row lg:items-center lg:justify-between lg:space-y-0">
+            <div className="flex flex-col sm:flex-row sm:flex-wrap items-start sm:items-center gap-3">
               <Select 
                 value={filters.status} 
                 onValueChange={(value) => setFilters(prev => ({ ...prev, status: value }))}
               >
-                <SelectTrigger className="w-40 bg-md-surface border-md-outline-variant hover:bg-md-surface-container-high">
+                <SelectTrigger className="w-full sm:w-40 bg-md-surface border-md-outline-variant hover:bg-md-surface-container-high">
                   <SelectValue placeholder="All Status" />
                 </SelectTrigger>
                 <SelectContent>
@@ -276,7 +276,7 @@ export default function Submissions() {
                 value={filters.province} 
                 onValueChange={(value) => setFilters(prev => ({ ...prev, province: value }))}
               >
-                <SelectTrigger className="w-40">
+                <SelectTrigger className="w-full sm:w-40">
                   <SelectValue placeholder="All Provinces" />
                 </SelectTrigger>
                 <SelectContent>
@@ -292,7 +292,7 @@ export default function Submissions() {
                 value={filters.channel} 
                 onValueChange={(value) => setFilters(prev => ({ ...prev, channel: value }))}
               >
-                <SelectTrigger className="w-40">
+                <SelectTrigger className="w-full sm:w-40">
                   <SelectValue placeholder="All Channels" />
                 </SelectTrigger>
                 <SelectContent>
@@ -308,12 +308,12 @@ export default function Submissions() {
                 placeholder="Search submissions..."
                 value={filters.search}
                 onChange={(e) => setFilters(prev => ({ ...prev, search: e.target.value }))}
-                className="w-64"
+                className="w-full sm:w-64"
                 data-testid="input-search-submissions"
               />
             </div>
 
-            <div className="flex items-center space-x-3">
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
               <Button
                 onClick={handleBulkApprove}
                 disabled={selectedIds.length === 0 || bulkApproveMutation.isPending}
@@ -321,7 +321,8 @@ export default function Submissions() {
                 data-testid="button-bulk-approve"
               >
                 <Check className="mr-2 h-4 w-4" />
-                Bulk Approve ({selectedIds.length})
+                <span className="hidden sm:inline">Bulk Approve ({selectedIds.length})</span>
+                <span className="sm:hidden">Approve ({selectedIds.length})</span>
               </Button>
               <Button variant="outline" className="border-md-outline hover:bg-md-surface-container-high md-label-large" data-testid="button-export">
                 <Download className="mr-2 h-4 w-4" />
@@ -340,8 +341,8 @@ export default function Submissions() {
             <div className="flex items-center space-x-2">
               <Checkbox
                 checked={
-                  data?.submissions.length > 0 && 
-                  selectedIds.length === data?.submissions.length
+                  (data?.submissions?.length || 0) > 0 && 
+                  selectedIds.length === (data?.submissions?.length || 0)
                 }
                 onCheckedChange={handleSelectAll}
                 data-testid="checkbox-select-all"

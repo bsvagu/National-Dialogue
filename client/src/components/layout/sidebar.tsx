@@ -259,6 +259,7 @@ export default function Sidebar({ isCollapsed, onToggle, isMobile, isOpen, onClo
           )}
         </div>
       </div>
+    </div>
     </>
   );
 }

@@ -68,15 +68,20 @@ export default function Analytics() {
                                   (analytics?.sentiment.negativeCount || 0);
 
   return (
-    <div className="space-y-6" data-testid="analytics-view">
+    <div className="space-y-4 sm:space-y-6" data-testid="analytics-view">
+      {/* Page Header - Material Design 3 Typography */}
+      <div className="mb-6 sm:mb-8">
+        <h1 className="md-headline-medium sm:md-headline-large text-md-surface-on mb-2">Analytics</h1>
+        <p className="md-body-medium sm:md-body-large text-md-surface-on-variant">Comprehensive insights and data visualization</p>
+      </div>
       {/* Controls */}
       <Card>
-        <CardContent className="p-6">
-          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between space-y-4 lg:space-y-0">
-            <div className="flex items-center space-x-4">
-              <h2 className="text-xl font-semibold text-slate-900">Analytics Dashboard</h2>
+        <CardContent className="p-3 sm:p-6">
+          <div className="flex flex-col space-y-4 sm:space-y-4 lg:flex-row lg:items-center lg:justify-between lg:space-y-0">
+            <div className="flex flex-col sm:flex-row sm:flex-wrap items-start sm:items-center gap-3">
+              <h2 className="md-title-large text-md-surface-on">Analytics Dashboard</h2>
               <Select value={timeRange} onValueChange={setTimeRange}>
-                <SelectTrigger className="w-40">
+                <SelectTrigger className="w-full sm:w-40">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -86,7 +91,7 @@ export default function Analytics() {
                 </SelectContent>
               </Select>
               <Select value={provinceFilter} onValueChange={setProvinceFilter}>
-                <SelectTrigger className="w-40">
+                <SelectTrigger className="w-full sm:w-40">
                   <SelectValue placeholder="All Provinces" />
                 </SelectTrigger>
                 <SelectContent>
@@ -98,14 +103,16 @@ export default function Analytics() {
                 </SelectContent>
               </Select>
             </div>
-            <div className="flex items-center space-x-3">
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
               <Button variant="outline" data-testid="button-export-analytics">
                 <Download className="mr-2 h-4 w-4" />
-                Export Report
+                <span className="hidden sm:inline">Export Report</span>
+                <span className="sm:hidden">Export</span>
               </Button>
               <Button variant="outline">
                 <Filter className="mr-2 h-4 w-4" />
-                Advanced Filters
+                <span className="hidden sm:inline">Advanced Filters</span>
+                <span className="sm:hidden">Filters</span>
               </Button>
             </div>
           </div>
@@ -113,7 +120,7 @@ export default function Analytics() {
       </Card>
 
       {/* Key Metrics */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
         <StatsCard
           title="Total Submissions"
           value={analytics?.submissions.total || 0}

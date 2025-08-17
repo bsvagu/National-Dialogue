@@ -172,21 +172,22 @@ export default function Departments() {
   }
 
   return (
-    <div className="space-y-6" data-testid="departments-view">
+    <div className="space-y-4 sm:space-y-6" data-testid="departments-view">
+      {/* Page Header - Material Design 3 Typography */}
+      <div className="mb-6 sm:mb-8">
+        <h1 className="md-headline-medium sm:md-headline-large text-md-surface-on mb-2">Departments</h1>
+        <p className="md-body-medium sm:md-body-large text-md-surface-on-variant">Manage government departments and their configurations</p>
+      </div>
       {/* Header */}
       <Card>
-        <CardContent className="p-6">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-4 sm:space-y-0">
-            <div>
-              <h2 className="text-xl font-semibold text-slate-900">Departments</h2>
-              <p className="text-sm text-slate-600 mt-1">Manage government departments and their SLAs</p>
-            </div>
-            <div className="flex items-center space-x-3">
+        <CardContent className="p-3 sm:p-6">
+          <div className="flex flex-col space-y-4 sm:space-y-4 lg:flex-row lg:items-center lg:justify-between lg:space-y-0">
+            <div className="flex flex-col sm:flex-row sm:flex-wrap items-start sm:items-center gap-3">
               <Input
                 placeholder="Search departments..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="w-64"
+                className="w-full sm:w-64"
                 data-testid="input-search-departments"
               />
               {canManageDepartments && (

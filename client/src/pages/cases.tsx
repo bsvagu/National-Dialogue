@@ -175,22 +175,22 @@ export default function Cases() {
   }
 
   return (
-    <div className="space-y-6" data-testid="cases-view">
+    <div className="space-y-4 sm:space-y-6" data-testid="cases-view">
       {/* Page Header - Material Design 3 Typography */}
-      <div className="mb-8">
-        <h1 className="md-headline-large text-md-surface-on mb-2">Cases</h1>
-        <p className="md-body-large text-md-surface-on-variant">Track and manage case workflow</p>
+      <div className="mb-6 sm:mb-8">
+        <h1 className="md-headline-medium sm:md-headline-large text-md-surface-on mb-2">Cases</h1>
+        <p className="md-body-medium sm:md-body-large text-md-surface-on-variant">Track and manage case workflow</p>
       </div>
       {/* Filters - Material Design 3 */}
       <Card className="bg-md-surface-container border-md-outline-variant shadow-md-1">
-        <CardContent className="p-6">
-          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between space-y-4 lg:space-y-0">
-            <div className="flex flex-wrap items-center gap-3">
+        <CardContent className="p-3 sm:p-6">
+          <div className="flex flex-col space-y-4 sm:space-y-4 lg:flex-row lg:items-center lg:justify-between lg:space-y-0">
+            <div className="flex flex-col sm:flex-row sm:flex-wrap items-start sm:items-center gap-3">
               <Select 
                 value={filters.state} 
                 onValueChange={(value) => setFilters(prev => ({ ...prev, state: value }))}
               >
-                <SelectTrigger className="w-40">
+                <SelectTrigger className="w-full sm:w-40">
                   <SelectValue placeholder="All States" />
                 </SelectTrigger>
                 <SelectContent>
@@ -206,7 +206,7 @@ export default function Cases() {
                 value={filters.department} 
                 onValueChange={(value) => setFilters(prev => ({ ...prev, department: value }))}
               >
-                <SelectTrigger className="w-40">
+                <SelectTrigger className="w-full sm:w-40">
                   <SelectValue placeholder="All Departments" />
                 </SelectTrigger>
                 <SelectContent>
@@ -223,7 +223,7 @@ export default function Cases() {
                 value={filters.priority} 
                 onValueChange={(value) => setFilters(prev => ({ ...prev, priority: value }))}
               >
-                <SelectTrigger className="w-40">
+                <SelectTrigger className="w-full sm:w-40">
                   <SelectValue placeholder="All Priorities" />
                 </SelectTrigger>
                 <SelectContent>
@@ -235,16 +235,17 @@ export default function Cases() {
               </Select>
             </div>
 
-            <Button className="bg-md-primary hover:bg-md-primary-container text-md-primary-on hover:text-md-primary-on-container md-label-large" data-testid="button-create-case">
+            <Button className="w-full sm:w-auto bg-md-primary hover:bg-md-primary-container text-md-primary-on hover:text-md-primary-on-container md-label-large" data-testid="button-create-case">
               <Plus className="mr-2 h-4 w-4" />
-              New Case
+              <span className="hidden sm:inline">Create New Case</span>
+              <span className="sm:hidden">New Case</span>
             </Button>
           </div>
         </CardContent>
       </Card>
 
       {/* Cases Kanban Board - Material Design 3 */}
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
         {/* Open Cases */}
         <Card className="bg-md-surface-container border-md-outline-variant shadow-md-1">
           <CardHeader className="pb-4">

@@ -64,18 +64,19 @@ export function DataTable<T extends Record<string, any>>({
   }
 
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-slate-200">
-      <Table>
-        <TableHeader>
-          <TableRow>
-            {columns.map((column) => (
-              <TableHead key={String(column.key)} className={column.className}>
-                {column.title}
-              </TableHead>
-            ))}
-          </TableRow>
-        </TableHeader>
-        <TableBody>
+    <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+      <div className="overflow-x-auto">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              {columns.map((column) => (
+                <TableHead key={String(column.key)} className={column.className}>
+                  {column.title}
+                </TableHead>
+              ))}
+            </TableRow>
+          </TableHeader>
+          <TableBody>
           {data.length === 0 ? (
             <TableRow>
               <TableCell 
@@ -99,38 +100,46 @@ export function DataTable<T extends Record<string, any>>({
               </TableRow>
             ))
           )}
-        </TableBody>
-      </Table>
+          </TableBody>
+        </Table>
+      </div>
 
       {pagination && data.length > 0 && (
-        <div className="px-6 py-4 border-t border-slate-200 flex items-center justify-between">
-          <p className="text-sm text-slate-600">
-            Showing <span className="font-medium">{pagination.offset + 1}</span> to{" "}
+        <div className="px-3 sm:px-6 py-4 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between space-y-3 sm:space-y-0">
+          <p className="text-sm text-slate-600 order-2 sm:order-1">
+            <span className="hidden sm:inline">Showing <span className="font-medium">{pagination.offset + 1}</span> to{" "}
             <span className="font-medium">
               {Math.min(pagination.offset + pagination.limit, pagination.total)}
             </span>{" "}
-            of <span className="font-medium">{pagination.total}</span> results
+            of <span className="font-medium">{pagination.total}</span> results</span>
+            <span className="sm:hidden">{pagination.offset + 1}-{Math.min(pagination.offset + pagination.limit, pagination.total)} of {pagination.total}</span>
           </p>
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center space-x-2 order-1 sm:order-2">
             <Button
               variant="outline"
               size="sm"
               onClick={handlePrevPage}
               disabled={currentPage <= 1}
               data-testid="button-prev-page"
+              className="text-xs sm:text-sm"
             >
-              <ChevronLeft className="h-4 w-4" />
-              Previous
+              <ChevronLeft className="h-4 w-4 sm:mr-1" />
+              <span className="hidden sm:inline">Previous</span>
             </Button>
+            <span className="text-sm text-slate-600 px-2">
+              <span className="hidden sm:inline">Page {currentPage} of {totalPages}</span>
+              <span className="sm:hidden">{currentPage}/{totalPages}</span>
+            </span>
             <Button
               variant="outline"
               size="sm"
               onClick={handleNextPage}
               disabled={currentPage >= totalPages}
               data-testid="button-next-page"
+              className="text-xs sm:text-sm"
             >
-              Next
-              <ChevronRight className="h-4 w-4" />
+              <span className="hidden sm:inline">Next</span>
+              <ChevronRight className="h-4 w-4 sm:ml-1" />
             </Button>
           </div>
         </div>
