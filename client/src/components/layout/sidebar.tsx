@@ -43,9 +43,12 @@ const systemNav = [
 interface SidebarProps {
   isCollapsed: boolean;
   onToggle: () => void;
+  isMobile: boolean;
+  isOpen: boolean;
+  onClose: () => void;
 }
 
-export default function Sidebar({ isCollapsed, onToggle }: SidebarProps) {
+export default function Sidebar({ isCollapsed, onToggle, isMobile, isOpen, onClose }: SidebarProps) {
   const [location] = useLocation();
   const { user } = useAuth();
   const logout = useLogout();
@@ -63,10 +66,26 @@ export default function Sidebar({ isCollapsed, onToggle }: SidebarProps) {
   };
 
   return (
-    <div className={cn(
-      "bg-md-surface-container flex flex-col shadow-md-2 fixed left-0 top-0 h-full z-10 transition-all duration-300",
-      isCollapsed ? "w-16" : "w-72"
-    )}>
+    <>
+      {/* Mobile overlay */}
+      {isMobile && isOpen && (
+        <div 
+          className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
+          onClick={onClose}
+        />
+      )}
+      
+      <div className={cn(
+        "bg-md-surface-container flex flex-col shadow-md-2 fixed left-0 top-0 h-full z-50 transition-all duration-300",
+        isMobile 
+          ? cn(
+              "w-72",
+              isOpen ? "translate-x-0" : "-translate-x-full"
+            )
+          : cn(
+              isCollapsed ? "w-16" : "w-72"
+            )
+      )}>
       {/* Logo and Toggle - Material Design 3 */}
       <div className="p-4 border-b border-md-outline-variant">
         <div className="flex items-center justify-between">
@@ -74,7 +93,7 @@ export default function Sidebar({ isCollapsed, onToggle }: SidebarProps) {
             <div className="w-10 h-10 bg-md-primary rounded-md-base flex items-center justify-center">
               <MessageCircle className="h-6 w-6 text-md-primary-on" />
             </div>
-            {!isCollapsed && (
+            {(!isCollapsed || isMobile) && (
               <div>
                 <h1 className="md-title-large text-md-surface-on">National Dialogue</h1>
                 <p className="md-body-small text-md-surface-on-variant">Admin Portal</p>
@@ -84,11 +103,13 @@ export default function Sidebar({ isCollapsed, onToggle }: SidebarProps) {
           <Button
             variant="ghost"
             size="icon"
-            onClick={onToggle}
+            onClick={isMobile ? onClose : onToggle}
             className="h-8 w-8 text-md-surface-on-variant hover:text-md-surface-on hover:bg-md-surface-container-high"
             data-testid="sidebar-toggle"
           >
-            {isCollapsed ? (
+            {isMobile ? (
+              <ChevronLeft className="h-4 w-4" />
+            ) : isCollapsed ? (
               <ChevronRight className="h-4 w-4" />
             ) : (
               <ChevronLeft className="h-4 w-4" />
@@ -107,18 +128,19 @@ export default function Sidebar({ isCollapsed, onToggle }: SidebarProps) {
             <Link
               key={item.name}
               href={item.href}
+              onClick={isMobile ? onClose : undefined}
               className={cn(
                 "flex items-center rounded-md-lg transition-all duration-200",
-                isCollapsed ? "justify-center px-3 py-3" : "space-x-3 px-3 py-3 md-label-large",
+                isCollapsed && !isMobile ? "justify-center px-3 py-3" : "space-x-3 px-3 py-3 md-label-large",
                 isActive 
                   ? "bg-md-primary-container text-md-primary-on-container shadow-md-1" 
                   : "text-md-surface-on-variant hover:text-md-surface-on hover:bg-md-surface-container-high"
               )}
               data-testid={`link-${item.name.toLowerCase().replace(/\s+/g, '-')}`}
-              title={isCollapsed ? item.name : undefined}
+              title={isCollapsed && !isMobile ? item.name : undefined}
             >
               <Icon className="h-5 w-5" />
-              {!isCollapsed && (
+              {(!isCollapsed || isMobile) && (
                 <>
                   <span>{item.name}</span>
                   {item.badge && (
@@ -134,7 +156,7 @@ export default function Sidebar({ isCollapsed, onToggle }: SidebarProps) {
 
         {/* Management Section */}
         <div className="pt-6 border-t border-md-outline-variant mt-4">
-          {!isCollapsed && (
+          {(!isCollapsed || isMobile) && (
             <h3 className="md-label-small text-md-surface-on-variant uppercase tracking-wider mb-3 px-3">
               Management
             </h3>
@@ -147,18 +169,19 @@ export default function Sidebar({ isCollapsed, onToggle }: SidebarProps) {
               <Link
                 key={item.name}
                 href={item.href}
+                onClick={isMobile ? onClose : undefined}
                 className={cn(
                   "flex items-center rounded-md-lg transition-all duration-200",
-                  isCollapsed ? "justify-center px-3 py-3" : "space-x-3 px-3 py-3 md-label-large",
+                  isCollapsed && !isMobile ? "justify-center px-3 py-3" : "space-x-3 px-3 py-3 md-label-large",
                   isActive 
                     ? "bg-md-secondary-container text-md-secondary-on-container shadow-md-1" 
                     : "text-md-surface-on-variant hover:text-md-surface-on hover:bg-md-surface-container-high"
                 )}
                 data-testid={`link-${item.name.toLowerCase().replace(/\s+/g, '-')}`}
-                title={isCollapsed ? item.name : undefined}
+                title={isCollapsed && !isMobile ? item.name : undefined}
               >
                 <Icon className="h-5 w-5" />
-                {!isCollapsed && <span>{item.name}</span>}
+                {(!isCollapsed || isMobile) && <span>{item.name}</span>}
               </Link>
             );
           })}
@@ -174,18 +197,19 @@ export default function Sidebar({ isCollapsed, onToggle }: SidebarProps) {
               <Link
                 key={item.name}
                 href={item.href}
+                onClick={isMobile ? onClose : undefined}
                 className={cn(
                   "flex items-center rounded-md-lg transition-all duration-200",
-                  isCollapsed ? "justify-center px-3 py-3" : "space-x-3 px-3 py-3 md-label-large",
+                  isCollapsed && !isMobile ? "justify-center px-3 py-3" : "space-x-3 px-3 py-3 md-label-large",
                   isActive 
                     ? "bg-md-tertiary-container text-md-tertiary-on-container shadow-md-1" 
                     : "text-md-surface-on-variant hover:text-md-surface-on hover:bg-md-surface-container-high"
                 )}
                 data-testid={`link-${item.name.toLowerCase().replace(/\s+/g, '-')}`}
-                title={isCollapsed ? item.name : undefined}
+                title={isCollapsed && !isMobile ? item.name : undefined}
               >
                 <Icon className="h-5 w-5" />
-                {!isCollapsed && <span>{item.name}</span>}
+                {(!isCollapsed || isMobile) && <span>{item.name}</span>}
               </Link>
             );
           })}
@@ -196,14 +220,14 @@ export default function Sidebar({ isCollapsed, onToggle }: SidebarProps) {
       <div className="p-4 border-t border-md-outline-variant bg-md-surface-container-low">
         <div className={cn(
           "flex items-center",
-          isCollapsed ? "justify-center" : "space-x-3"
+          isCollapsed && !isMobile ? "justify-center" : "space-x-3"
         )}>
           <div className="w-10 h-10 bg-md-primary rounded-md-full flex items-center justify-center">
             <span className="md-label-large text-md-primary-on">
               {user ? getInitials(user.name) : "U"}
             </span>
           </div>
-          {!isCollapsed && (
+          {(!isCollapsed || isMobile) && (
             <>
               <div className="flex-1 min-w-0">
                 <p className="md-body-medium text-md-surface-on truncate font-medium">
@@ -223,7 +247,7 @@ export default function Sidebar({ isCollapsed, onToggle }: SidebarProps) {
               </button>
             </>
           )}
-          {isCollapsed && (
+          {isCollapsed && !isMobile && (
             <button 
               onClick={handleLogout}
               className="absolute bottom-4 right-4 p-2 text-md-surface-on-variant hover:text-md-surface-on hover:bg-md-surface-container-high transition-all duration-200 rounded-md-full"
@@ -235,6 +259,6 @@ export default function Sidebar({ isCollapsed, onToggle }: SidebarProps) {
           )}
         </div>
       </div>
-    </div>
+    </>
   );
 }

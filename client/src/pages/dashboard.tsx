@@ -33,15 +33,15 @@ export default function Dashboard() {
   const avgSentiment = analytics?.sentiment.avgSentiment || 0;
 
   return (
-    <div className="space-y-6" data-testid="dashboard-view">
+    <div className="space-y-4 sm:space-y-6" data-testid="dashboard-view">
       {/* Page Header - Material Design 3 Typography */}
-      <div className="mb-8">
-        <h1 className="md-headline-large text-md-surface-on mb-2">Dashboard</h1>
-        <p className="md-body-large text-md-surface-on-variant">National Dialogue programme analytics overview</p>
+      <div className="mb-6 sm:mb-8">
+        <h1 className="md-headline-medium sm:md-headline-large text-md-surface-on mb-2">Dashboard</h1>
+        <p className="md-body-medium sm:md-body-large text-md-surface-on-variant">National Dialogue programme analytics overview</p>
       </div>
 
       {/* KPI Cards with Material Design 3 styling */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
         <StatsCard
           title="Total Submissions"
           value={analytics?.submissions.total || 0}
