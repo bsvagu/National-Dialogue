@@ -68,7 +68,7 @@ export default function UserForm({ user, onSuccess }: UserFormProps) {
       if (!payload.password) {
         delete payload.password;
       } else {
-        payload.passwordHash = payload.password;
+        (payload as any).passwordHash = payload.password;
         delete payload.password;
       }
       await apiRequest("PATCH", `/api/users/${user!.id}`, payload);
@@ -212,7 +212,7 @@ export default function UserForm({ user, onSuccess }: UserFormProps) {
       <div>
         <Label>Roles</Label>
         <div className="mt-2 space-y-2">
-          {roles?.map((role: any) => (
+          {roles && Array.isArray(roles) ? roles.map((role: any) => (
             <div key={role.id} className="flex items-center space-x-2">
               <Checkbox
                 id={`role-${role.id}`}
@@ -224,7 +224,9 @@ export default function UserForm({ user, onSuccess }: UserFormProps) {
                 {role.name}
               </Label>
             </div>
-          ))}
+          )) : (
+            <div className="text-sm text-gray-500">No roles available</div>
+          )}
         </div>
         {errors.roles && (
           <p className="text-sm text-red-600 mt-1">{errors.roles.message}</p>

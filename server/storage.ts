@@ -359,19 +359,19 @@ export class DatabaseStorage implements IStorage {
 
     const conditions = [];
     
-    if (filters?.state) {
+    if (filters?.state && filters.state !== 'all') {
       conditions.push(eq(cases.state, filters.state as any));
     }
     
-    if (filters?.department) {
+    if (filters?.department && filters.department !== 'all') {
       conditions.push(eq(cases.departmentId, filters.department));
     }
     
-    if (filters?.assignee) {
+    if (filters?.assignee && filters.assignee !== 'all') {
       conditions.push(eq(cases.assigneeId, filters.assignee));
     }
     
-    if (filters?.priority) {
+    if (filters?.priority && filters.priority !== 'all') {
       conditions.push(eq(cases.priority, filters.priority as any));
     }
 
