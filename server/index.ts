@@ -73,22 +73,14 @@ app.use((req, res, next) => {
   // importantly only setup vite in development and after
   // setting up all the other routes so the catch-all route
   // doesn't interfere with the other routes
-  if (app.get("env") === "development") {
+  if (process.env.NODE_ENV === "development") {
     await setupVite(app, server);
   } else {
     serveStatic(app);
   }
 
-  // ALWAYS serve the app on the port specified in the environment variable PORT
-  // Other ports are firewalled. Default to 5000 if not specified.
-  // this serves both the API and the client.
-  // It is the only port that is not firewalled.
-  // For Vercel serverless deployment
-  if (process.env.VERCEL) {
-    // Export the Express app for Vercel
-    module.exports = app;
-  } else {
-    // For local development
+  // For local development only
+  if (!process.env.VERCEL && process.env.NODE_ENV !== "production") {
     const PORT = Number(process.env.PORT ?? 5000);
     const HOST = "127.0.0.1"; // only localhost
 
@@ -97,3 +89,6 @@ app.use((req, res, next) => {
     });
   }
 })();
+
+// Export for Vercel serverless
+export default app;
