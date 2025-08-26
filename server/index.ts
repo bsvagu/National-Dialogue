@@ -3,6 +3,29 @@ import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 
 const app = express();
+
+// CORS middleware
+app.use((req, res, next) => {
+  // For production, allow your Vercel domain
+  if (process.env.NODE_ENV === 'production') {
+    res.setHeader('Access-Control-Allow-Origin', 'https://national-dialogue.vercel.app');
+  } else {
+    // For development, allow localhost
+    res.setHeader('Access-Control-Allow-Origin', 'http://localhost:5173');
+  }
+
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With');
+  res.setHeader('Access-Control-Allow-Credentials', 'true');
+
+  if (req.method === 'OPTIONS') {
+    res.status(200).end();
+    return;
+  }
+
+  next();
+});
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
@@ -60,12 +83,17 @@ app.use((req, res, next) => {
   // Other ports are firewalled. Default to 5000 if not specified.
   // this serves both the API and the client.
   // It is the only port that is not firewalled.
-const PORT = Number(process.env.PORT ?? 5000);
-const HOST = "127.0.0.1"; // only localhost
+  // For Vercel serverless deployment
+  if (process.env.VERCEL) {
+    // Export the Express app for Vercel
+    module.exports = app;
+  } else {
+    // For local development
+    const PORT = Number(process.env.PORT ?? 5000);
+    const HOST = "127.0.0.1"; // only localhost
 
-server.listen(PORT, HOST, () => {
-  log(`Server running at http://${HOST}:${PORT}`);
-});
-
-
+    server.listen(PORT, HOST, () => {
+      log(`Server running at http://${HOST}:${PORT}`);
+    });
+  }
 })();
