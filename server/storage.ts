@@ -47,6 +47,10 @@ export interface IStorage {
 
   // Role operations
   getRoles(): Promise<Role[]>;
+  getRole(id: string): Promise<Role | undefined>;
+  createRole(role: { name: string; description?: string }): Promise<Role>;
+  updateRole(id: string, updates: { name?: string; description?: string }): Promise<Role>;
+  deleteRole(id: string): Promise<void>;
   getUserRoles(userId: string): Promise<Role[]>;
   assignRole(userId: string, roleId: string): Promise<void>;
   removeRole(userId: string, roleId: string): Promise<void>;
@@ -88,16 +92,25 @@ export interface IStorage {
   getPoll(id: string): Promise<Poll | undefined>;
   createPoll(poll: InsertPoll): Promise<Poll>;
   updatePoll(id: string, updates: Partial<InsertPoll>): Promise<Poll>;
+  deletePoll(id: string): Promise<void>;
 
   // Topic tag operations
   getTopicTags(): Promise<TopicTag[]>;
+  getTopicTag(id: string): Promise<TopicTag | undefined>;
   createTopicTag(tag: { name: string; parentId?: string }): Promise<TopicTag>;
+  updateTopicTag(id: string, updates: { name?: string; parentId?: string }): Promise<TopicTag>;
+  deleteTopicTag(id: string): Promise<void>;
 
   // Analytics operations
   getSubmissionStats(days?: number): Promise<any>;
   getCaseStats(): Promise<any>;
   getSentimentStats(): Promise<any>;
   getProvinceStats(): Promise<any>;
+  getSubmissionTrends(days?: number): Promise<any>;
+  getSentimentTrends(days?: number): Promise<any>;
+  getDepartmentPerformance(): Promise<any>;
+  getChannelAnalytics(): Promise<any>;
+  getResponseTimeStats(): Promise<any>;
 
   // Notification operations
   getUserNotifications(userId: string, unreadOnly?: boolean): Promise<Notification[]>;
@@ -220,7 +233,54 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getRoles(): Promise<Role[]> {
-    return await db.select().from(roles);
+    return await db.select().from(roles).orderBy(roles.name);
+  }
+
+  async getRole(id: string): Promise<Role | undefined> {
+    const [role] = await db.select().from(roles).where(eq(roles.id, id));
+    return role || undefined;
+  }
+
+  async createRole(role: { name: string; description?: string }): Promise<Role> {
+    // Check if role with same name already exists
+    const existingRole = await db
+      .select()
+      .from(roles)
+      .where(eq(roles.name, role.name as any));
+
+    if (existingRole.length > 0) {
+      throw new Error('Role with this name already exists');
+    }
+
+    const [newRole] = await db
+      .insert(roles)
+      .values(role)
+      .returning();
+    return newRole;
+  }
+
+  async updateRole(id: string, updates: { name?: string; description?: string }): Promise<Role> {
+    const [updatedRole] = await db
+      .update(roles)
+      .set(updates)
+      .where(eq(roles.id, id))
+      .returning();
+    return updatedRole;
+  }
+
+  async deleteRole(id: string): Promise<void> {
+    // Check if role is assigned to any users
+    const assignedUsers = await db
+      .select()
+      .from(userRoles)
+      .where(eq(userRoles.roleId, id));
+
+    if (assignedUsers.length > 0) {
+      throw new Error('Cannot delete role that is assigned to users');
+    }
+
+    // Delete the role
+    await db.delete(roles).where(eq(roles.id, id));
   }
 
   async getUserRoles(userId: string): Promise<Role[]> {
@@ -229,7 +289,7 @@ export class DatabaseStorage implements IStorage {
       .from(userRoles)
       .innerJoin(roles, eq(userRoles.roleId, roles.id))
       .where(eq(userRoles.userId, userId));
-    
+
     return result.map(r => r.role);
   }
 
@@ -459,6 +519,13 @@ export class DatabaseStorage implements IStorage {
     return updatedPoll;
   }
 
+  async deletePoll(id: string): Promise<void> {
+    // First delete all votes for this poll
+    await db.delete(votes).where(eq(votes.pollId, id));
+    // Then delete the poll
+    await db.delete(polls).where(eq(polls.id, id));
+  }
+
   async getTopicTags(): Promise<TopicTag[]> {
     return await db.select().from(topicTags).orderBy(topicTags.name);
   }
@@ -469,6 +536,35 @@ export class DatabaseStorage implements IStorage {
       .values(tag)
       .returning();
     return newTag;
+  }
+
+  async getTopicTag(id: string): Promise<TopicTag | undefined> {
+    const [tag] = await db.select().from(topicTags).where(eq(topicTags.id, id));
+    return tag || undefined;
+  }
+
+  async updateTopicTag(id: string, updates: { name?: string; parentId?: string }): Promise<TopicTag> {
+    const [updatedTag] = await db
+      .update(topicTags)
+      .set(updates)
+      .where(eq(topicTags.id, id))
+      .returning();
+    return updatedTag;
+  }
+
+  async deleteTopicTag(id: string): Promise<void> {
+    // Check if topic has child topics
+    const childTopics = await db
+      .select()
+      .from(topicTags)
+      .where(eq(topicTags.parentId, id));
+
+    if (childTopics.length > 0) {
+      throw new Error('Cannot delete topic that has child topics');
+    }
+
+    // Delete the tag
+    await db.delete(topicTags).where(eq(topicTags.id, id));
   }
 
   async getSubmissionStats(days: number = 7): Promise<any> {
@@ -540,6 +636,104 @@ export class DatabaseStorage implements IStorage {
       .where(sql`${submissions.province} IS NOT NULL`)
       .groupBy(submissions.province)
       .orderBy(desc(count()));
+  }
+
+  async getSubmissionTrends(days: number = 30): Promise<any> {
+    const startDate = new Date();
+    startDate.setDate(startDate.getDate() - days);
+
+    const trends = await db
+      .select({
+        date: sql<string>`DATE(${submissions.createdAt})`,
+        count: count(),
+        avgSentiment: sql<number>`AVG(${submissions.sentiment})`
+      })
+      .from(submissions)
+      .where(gte(submissions.createdAt, startDate))
+      .groupBy(sql`DATE(${submissions.createdAt})`)
+      .orderBy(sql`DATE(${submissions.createdAt})`);
+
+    return trends;
+  }
+
+  async getSentimentTrends(days: number = 30): Promise<any> {
+    const startDate = new Date();
+    startDate.setDate(startDate.getDate() - days);
+
+    const trends = await db
+      .select({
+        date: sql<string>`DATE(${submissions.createdAt})`,
+        positive: sql<number>`COUNT(CASE WHEN ${submissions.sentiment} > 0.1 THEN 1 END)`,
+        neutral: sql<number>`COUNT(CASE WHEN ${submissions.sentiment} BETWEEN -0.1 AND 0.1 THEN 1 END)`,
+        negative: sql<number>`COUNT(CASE WHEN ${submissions.sentiment} < -0.1 THEN 1 END)`
+      })
+      .from(submissions)
+      .where(and(
+        gte(submissions.createdAt, startDate),
+        sql`${submissions.sentiment} IS NOT NULL`
+      ))
+      .groupBy(sql`DATE(${submissions.createdAt})`)
+      .orderBy(sql`DATE(${submissions.createdAt})`);
+
+    return trends;
+  }
+
+  async getDepartmentPerformance(): Promise<any> {
+    const performance = await db
+      .select({
+        departmentId: cases.departmentId,
+        totalCases: count(),
+        avgResponseTime: sql<number>`AVG(EXTRACT(EPOCH FROM (${cases.updatedAt} - ${cases.createdAt})) / 3600)`,
+        onTimeRate: sql<number>`COUNT(CASE WHEN ${cases.dueAt} > ${cases.updatedAt} OR ${cases.state} = 'open' THEN 1 END) * 100.0 / COUNT(*)`,
+        resolvedCases: sql<number>`COUNT(CASE WHEN ${cases.state} = 'resolved' THEN 1 END)`
+      })
+      .from(cases)
+      .groupBy(cases.departmentId)
+      .orderBy(desc(count()));
+
+    // Get department names
+    const departmentNames = await db
+      .select({
+        id: departments.id,
+        name: departments.name
+      })
+      .from(departments);
+
+    const departmentMap = new Map(departmentNames.map(d => [d.id, d.name]));
+
+    return performance.map(p => ({
+      ...p,
+      departmentName: departmentMap.get(p.departmentId) || 'Unknown'
+    }));
+  }
+
+  async getChannelAnalytics(): Promise<any> {
+    const channelStats = await db
+      .select({
+        channel: submissions.channel,
+        count: count(),
+        avgSentiment: sql<number>`AVG(${submissions.sentiment})`,
+        recentCount: sql<number>`COUNT(CASE WHEN ${submissions.createdAt} >= NOW() - INTERVAL '7 days' THEN 1 END)`
+      })
+      .from(submissions)
+      .groupBy(submissions.channel)
+      .orderBy(desc(count()));
+
+    return channelStats;
+  }
+
+  async getResponseTimeStats(): Promise<any> {
+    const responseStats = await db
+      .select({
+        avgResponseTime: sql<number>`AVG(EXTRACT(EPOCH FROM (${cases.updatedAt} - ${cases.createdAt})) / 3600)`,
+        medianResponseTime: sql<number>`PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY EXTRACT(EPOCH FROM (${cases.updatedAt} - ${cases.createdAt})) / 3600)`,
+        p90ResponseTime: sql<number>`PERCENTILE_CONT(0.9) WITHIN GROUP (ORDER BY EXTRACT(EPOCH FROM (${cases.updatedAt} - ${cases.createdAt})) / 3600)`,
+        totalCases: count()
+      })
+      .from(cases)
+      .where(sql`${cases.updatedAt} IS NOT NULL`);
+
+    return responseStats[0];
   }
 
   async getUserNotifications(userId: string, unreadOnly?: boolean): Promise<Notification[]> {

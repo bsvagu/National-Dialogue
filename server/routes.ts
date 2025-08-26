@@ -3,7 +3,7 @@ import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { authenticateToken, generateTokens, verifyPassword, requirePermission, hashPassword, type AuthenticatedRequest } from "./auth";
 import { auditLogger, errorHandler, rateLimiter } from "./middleware";
-import { loginSchema, insertUserSchema, insertSubmissionSchema, insertCaseSchema, insertDepartmentSchema, insertPollSchema, otpRequestSchema, otpVerifySchema } from "@shared/schema";
+import { loginSchema, insertUserSchema, insertSubmissionSchema, insertCaseSchema, insertDepartmentSchema, insertRoleSchema, insertTopicTagSchema, insertPollSchema, otpRequestSchema, otpVerifySchema } from "@shared/schema";
 import { OtpService } from "./services/otp-service";
 import { seedDatabase } from "./seed";
 
@@ -174,6 +174,72 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.post('/api/roles', authenticateToken, requirePermission('manage_users'), auditLogger('CREATE', 'role'), async (req, res) => {
+    try {
+      const roleData = insertRoleSchema.parse(req.body);
+      const role = await storage.createRole(roleData);
+      res.status(201).json(role);
+    } catch (error: any) {
+      console.error('Create role error:', error);
+      if (error.message === 'Role with this name already exists') {
+        res.status(409).json({
+          error: { code: 'ROLE_EXISTS', message: error.message }
+        });
+      } else {
+        res.status(400).json({
+          error: { code: 'VALIDATION_ERROR', message: 'Invalid role data' }
+        });
+      }
+    }
+  });
+
+  app.get('/api/roles/:id', authenticateToken, requirePermission('manage_users'), async (req, res) => {
+    try {
+      const role = await storage.getRole(req.params.id);
+      if (!role) {
+        return res.status(404).json({
+          error: { code: 'ROLE_NOT_FOUND', message: 'Role not found' }
+        });
+      }
+      res.json(role);
+    } catch (error) {
+      console.error('Get role error:', error);
+      res.status(500).json({
+        error: { code: 'INTERNAL_ERROR', message: 'Failed to get role' }
+      });
+    }
+  });
+
+  app.patch('/api/roles/:id', authenticateToken, requirePermission('manage_users'), auditLogger('UPDATE', 'role'), async (req, res) => {
+    try {
+      const role = await storage.updateRole(req.params.id, req.body);
+      res.json(role);
+    } catch (error) {
+      console.error('Update role error:', error);
+      res.status(400).json({
+        error: { code: 'UPDATE_FAILED', message: 'Failed to update role' }
+      });
+    }
+  });
+
+  app.delete('/api/roles/:id', authenticateToken, requirePermission('manage_users'), auditLogger('DELETE', 'role'), async (req, res) => {
+    try {
+      await storage.deleteRole(req.params.id);
+      res.status(204).send();
+    } catch (error: any) {
+      console.error('Delete role error:', error);
+      if (error.message === 'Cannot delete role that is assigned to users') {
+        res.status(409).json({
+          error: { code: 'ROLE_IN_USE', message: error.message }
+        });
+      } else {
+        res.status(500).json({
+          error: { code: 'DELETE_FAILED', message: 'Failed to delete role' }
+        });
+      }
+    }
+  });
+
   // Departments endpoints
   app.get('/api/departments', authenticateToken, async (req, res) => {
     try {
@@ -244,14 +310,61 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post('/api/topics', authenticateToken, requirePermission('manage_taxonomy'), auditLogger('CREATE', 'topic'), async (req, res) => {
     try {
-      const { name, parentId } = req.body;
-      const topic = await storage.createTopicTag({ name, parentId });
+      const topicData = insertTopicTagSchema.parse(req.body);
+      const topic = await storage.createTopicTag(topicData);
       res.status(201).json(topic);
     } catch (error) {
       console.error('Create topic error:', error);
       res.status(400).json({
         error: { code: 'VALIDATION_ERROR', message: 'Invalid topic data' }
       });
+    }
+  });
+
+  app.get('/api/topics/:id', authenticateToken, async (req, res) => {
+    try {
+      const topic = await storage.getTopicTag(req.params.id);
+      if (!topic) {
+        return res.status(404).json({
+          error: { code: 'TOPIC_NOT_FOUND', message: 'Topic not found' }
+        });
+      }
+      res.json(topic);
+    } catch (error) {
+      console.error('Get topic error:', error);
+      res.status(500).json({
+        error: { code: 'INTERNAL_ERROR', message: 'Failed to get topic' }
+      });
+    }
+  });
+
+  app.patch('/api/topics/:id', authenticateToken, requirePermission('manage_taxonomy'), auditLogger('UPDATE', 'topic'), async (req, res) => {
+    try {
+      const topic = await storage.updateTopicTag(req.params.id, req.body);
+      res.json(topic);
+    } catch (error) {
+      console.error('Update topic error:', error);
+      res.status(400).json({
+        error: { code: 'UPDATE_FAILED', message: 'Failed to update topic' }
+      });
+    }
+  });
+
+  app.delete('/api/topics/:id', authenticateToken, requirePermission('manage_taxonomy'), auditLogger('DELETE', 'topic'), async (req, res) => {
+    try {
+      await storage.deleteTopicTag(req.params.id);
+      res.status(204).send();
+    } catch (error: any) {
+      console.error('Delete topic error:', error);
+      if (error.message === 'Cannot delete topic that has child topics') {
+        res.status(409).json({
+          error: { code: 'TOPIC_HAS_CHILDREN', message: error.message }
+        });
+      } else {
+        res.status(500).json({
+          error: { code: 'DELETE_FAILED', message: 'Failed to delete topic' }
+        });
+      }
     }
   });
 
@@ -277,7 +390,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/submissions', async (req, res) => {
+  app.post('/api/submissions', authenticateToken, requirePermission('review_submissions'), auditLogger('CREATE', 'submission'), async (req, res) => {
     try {
       const submissionData = insertSubmissionSchema.parse(req.body);
       const submission = await storage.createSubmission(submissionData);
@@ -343,7 +456,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post('/api/cases', authenticateToken, requirePermission('manage_cases'), auditLogger('CREATE', 'case'), async (req, res) => {
     try {
-      const caseData = insertCaseSchema.parse(req.body);
+      // Transform string dates to Date objects for server-side validation
+      const transformedData = {
+        ...req.body,
+        dueAt: req.body.dueAt ? new Date(req.body.dueAt) : undefined,
+      };
+
+      const caseData = insertCaseSchema.parse(transformedData);
       const newCase = await storage.createCase(caseData);
       res.status(201).json(newCase);
     } catch (error) {
@@ -373,7 +492,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.patch('/api/cases/:id', authenticateToken, requirePermission('manage_cases'), auditLogger('UPDATE', 'case'), async (req, res) => {
     try {
-      const caseData = await storage.updateCase(req.params.id, req.body);
+      // Transform string dates to Date objects for server-side validation
+      const transformedData = {
+        ...req.body,
+        dueAt: req.body.dueAt ? new Date(req.body.dueAt) : req.body.dueAt === null ? null : undefined,
+      };
+
+      const caseData = await storage.updateCase(req.params.id, transformedData);
       res.json(caseData);
     } catch (error) {
       console.error('Update case error:', error);
@@ -439,29 +564,89 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.delete('/api/polls/:id', authenticateToken, requirePermission('manage_polls'), auditLogger('DELETE', 'poll'), async (req, res) => {
+    try {
+      await storage.deletePoll(req.params.id);
+      res.status(204).send();
+    } catch (error) {
+      console.error('Delete poll error:', error);
+      res.status(500).json({
+        error: { code: 'DELETE_FAILED', message: 'Failed to delete poll' }
+      });
+    }
+  });
+
   // Analytics endpoints
   app.get('/api/analytics/summary', authenticateToken, requirePermission('view_analytics'), async (req, res) => {
     try {
       const { range = '7d' } = req.query;
       const days = range === '30d' ? 30 : range === '90d' ? 90 : 7;
 
-      const [submissionStats, caseStats, sentimentStats, provinceStats] = await Promise.all([
+      const [submissionStats, caseStats, sentimentStats, provinceStats, responseTimeStats] = await Promise.all([
         storage.getSubmissionStats(days),
         storage.getCaseStats(),
         storage.getSentimentStats(),
-        storage.getProvinceStats()
+        storage.getProvinceStats(),
+        storage.getResponseTimeStats()
       ]);
 
       res.json({
         submissions: submissionStats,
         cases: caseStats,
         sentiment: sentimentStats,
-        provinces: provinceStats
+        provinces: provinceStats,
+        responseTime: responseTimeStats
       });
     } catch (error) {
       console.error('Get analytics summary error:', error);
       res.status(500).json({
         error: { code: 'INTERNAL_ERROR', message: 'Failed to get analytics' }
+      });
+    }
+  });
+
+  app.get('/api/analytics/trends', authenticateToken, requirePermission('view_analytics'), async (req, res) => {
+    try {
+      const { range = '30d' } = req.query;
+      const days = range === '90d' ? 90 : range === '7d' ? 7 : 30;
+
+      const [submissionTrends, sentimentTrends] = await Promise.all([
+        storage.getSubmissionTrends(days),
+        storage.getSentimentTrends(days)
+      ]);
+
+      res.json({
+        submissions: submissionTrends,
+        sentiment: sentimentTrends
+      });
+    } catch (error) {
+      console.error('Get analytics trends error:', error);
+      res.status(500).json({
+        error: { code: 'INTERNAL_ERROR', message: 'Failed to get analytics trends' }
+      });
+    }
+  });
+
+  app.get('/api/analytics/departments', authenticateToken, requirePermission('view_analytics'), async (req, res) => {
+    try {
+      const departmentPerformance = await storage.getDepartmentPerformance();
+      res.json(departmentPerformance);
+    } catch (error) {
+      console.error('Get department analytics error:', error);
+      res.status(500).json({
+        error: { code: 'INTERNAL_ERROR', message: 'Failed to get department analytics' }
+      });
+    }
+  });
+
+  app.get('/api/analytics/channels', authenticateToken, requirePermission('view_analytics'), async (req, res) => {
+    try {
+      const channelAnalytics = await storage.getChannelAnalytics();
+      res.json(channelAnalytics);
+    } catch (error) {
+      console.error('Get channel analytics error:', error);
+      res.status(500).json({
+        error: { code: 'INTERNAL_ERROR', message: 'Failed to get channel analytics' }
       });
     }
   });

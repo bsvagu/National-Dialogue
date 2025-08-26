@@ -112,4 +112,40 @@ export interface AnalyticsSummary {
     province: string;
     count: number;
   }>;
+  responseTime: {
+    avgResponseTime: number;
+    medianResponseTime: number;
+    p90ResponseTime: number;
+    totalCases: number;
+  };
+}
+
+export interface AnalyticsTrends {
+  submissions: Array<{
+    date: string;
+    count: number;
+    avgSentiment: number;
+  }>;
+  sentiment: Array<{
+    date: string;
+    positive: number;
+    neutral: number;
+    negative: number;
+  }>;
+}
+
+export interface DepartmentPerformance {
+  departmentId: string;
+  departmentName: string;
+  totalCases: number;
+  avgResponseTime: number;
+  onTimeRate: number;
+  resolvedCases: number;
+}
+
+export interface ChannelAnalytics {
+  channel: string;
+  count: number;
+  avgSentiment: number;
+  recentCount: number;
 }

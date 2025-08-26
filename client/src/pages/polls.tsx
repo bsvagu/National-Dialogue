@@ -47,51 +47,20 @@ export default function Polls() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  const canManagePolls = currentUser ? hasPermission(currentUser.roles, "manage_settings") : false;
-
-  // Mock data for demonstration - would connect to real API
-  const mockPollsData: Poll[] = [
-    {
-      id: "1",
-      question: "What is your top priority for infrastructure development in your area?",
-      options: ["Roads and Transportation", "Water and Sanitation", "Electricity", "Healthcare Facilities", "Educational Facilities"],
-      startAt: "2024-01-15T00:00:00Z",
-      endAt: "2024-02-15T23:59:59Z",
-      targetProvince: "gauteng",
-      createdAt: "2024-01-10T10:00:00Z",
-      responses: 1250
-    },
-    {
-      id: "2", 
-      question: "How would you rate the current state of public healthcare services?",
-      options: ["Excellent", "Good", "Fair", "Poor", "Very Poor"],
-      startAt: "2024-01-20T00:00:00Z",
-      endAt: "2024-03-20T23:59:59Z",
-      createdAt: "2024-01-18T10:00:00Z",
-      responses: 890
-    },
-    {
-      id: "3",
-      question: "Which economic development initiative should receive priority funding?",
-      options: ["Small Business Support", "Skills Development", "Tourism Development", "Agriculture Support", "Technology Innovation"],
-      startAt: "2024-02-01T00:00:00Z",
-      endAt: "2024-04-01T23:59:59Z",
-      targetProvince: "western_cape",
-      createdAt: "2024-01-25T10:00:00Z",
-      responses: 0
-    }
-  ];
+  const canManagePolls = currentUser ? hasPermission(currentUser.roles, "manage_polls") : false;
 
   const { data: polls, isLoading } = useQuery<Poll[]>({
     queryKey: ["/api/polls", { search, status: statusFilter }],
     queryFn: async () => {
-      // Mock API call - replace with real endpoint
+      const res = await apiRequest("GET", "/api/polls");
+      const allPolls = await res.json();
+
       const now = new Date();
-      return mockPollsData.filter(poll => {
+      return allPolls.filter((poll: Poll) => {
         const matchesSearch = poll.question.toLowerCase().includes(search.toLowerCase());
         const pollStart = new Date(poll.startAt);
         const pollEnd = new Date(poll.endAt);
-        
+
         let matchesStatus = true;
         if (statusFilter === "active") {
           matchesStatus = now >= pollStart && now <= pollEnd;
@@ -100,10 +69,11 @@ export default function Polls() {
         } else if (statusFilter === "ended") {
           matchesStatus = now > pollEnd;
         }
-        
+
         return matchesSearch && matchesStatus;
       });
     },
+    enabled: canManagePolls,
   });
 
   const {
@@ -131,9 +101,8 @@ export default function Polls() {
 
   const createPollMutation = useMutation({
     mutationFn: async (data: PollFormData) => {
-      // Mock API call - replace with real endpoint
-      console.log("Creating poll:", data);
-      await new Promise(resolve => setTimeout(resolve, 500));
+      const res = await apiRequest("POST", "/api/polls", data);
+      return await res.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/polls"] });
@@ -155,9 +124,8 @@ export default function Polls() {
 
   const updatePollMutation = useMutation({
     mutationFn: async ({ id, data }: { id: string; data: PollFormData }) => {
-      // Mock API call - replace with real endpoint
-      console.log("Updating poll:", id, data);
-      await new Promise(resolve => setTimeout(resolve, 500));
+      const res = await apiRequest("PATCH", `/api/polls/${id}`, data);
+      return await res.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/polls"] });
@@ -180,9 +148,7 @@ export default function Polls() {
 
   const deletePollMutation = useMutation({
     mutationFn: async (id: string) => {
-      // Mock API call - replace with real endpoint
-      console.log("Deleting poll:", id);
-      await new Promise(resolve => setTimeout(resolve, 500));
+      await apiRequest("DELETE", `/api/polls/${id}`);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/polls"] });

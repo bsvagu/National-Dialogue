@@ -7,9 +7,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { DataTable } from "@/components/ui/data-table";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
-import { Check, X, Eye, Download, Filter } from "lucide-react";
+import { Check, X, Eye, Download, Filter, Plus } from "lucide-react";
+import SubmissionForm from "@/components/forms/submission-form";
 import type { Submission } from "@/types/api";
 
 interface SubmissionsResponse {
@@ -26,14 +28,39 @@ export default function Submissions() {
   });
   const [pagination, setPagination] = useState({ limit: 20, offset: 0 });
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [showCreateForm, setShowCreateForm] = useState(false);
 
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
   const { data, isLoading } = useQuery<SubmissionsResponse>({
     queryKey: ["/api/submissions", filters, pagination],
-  });
+    queryFn: async () => {
+      const params = new URLSearchParams();
 
+      // Add filters to params
+      if (filters.status && filters.status !== "all") {
+        params.append("status", filters.status);
+      }
+      if (filters.province && filters.province !== "all") {
+        params.append("province", filters.province);
+      }
+      if (filters.channel && filters.channel !== "all") {
+        params.append("channel", filters.channel);
+      }
+      if (filters.search) {
+        params.append("search", filters.search);
+      }
+
+      // Add pagination to params
+      params.append("limit", pagination.limit.toString());
+      params.append("offset", pagination.offset.toString());
+
+      const res = await apiRequest("GET", `/api/submissions?${params}`);
+      return await res.json();
+    },
+  });
+console.log("data",data);
   const updateSubmissionMutation = useMutation({
     mutationFn: async ({ id, updates }: { id: string; updates: Partial<Submission> }) => {
       await apiRequest("PATCH", `/api/submissions/${id}`, updates);
@@ -91,6 +118,14 @@ export default function Submissions() {
     if (selectedIds.length > 0) {
       bulkApproveMutation.mutate(selectedIds);
     }
+  };
+
+  const handleCreateSubmission = () => {
+    setShowCreateForm(true);
+  };
+
+  const handleFormSuccess = () => {
+    setShowCreateForm(false);
   };
 
   const handleSelectAll = (checked: boolean) => {
@@ -314,6 +349,25 @@ export default function Submissions() {
             </div>
 
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+              <Dialog open={showCreateForm} onOpenChange={setShowCreateForm}>
+                <DialogTrigger asChild>
+                  <Button
+                    onClick={handleCreateSubmission}
+                    className="bg-green-600 hover:bg-green-700 text-white md-label-large"
+                    data-testid="button-create-submission"
+                  >
+                    <Plus className="mr-2 h-4 w-4" />
+                    <span className="hidden sm:inline">Create Submission</span>
+                    <span className="sm:hidden">Create</span>
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+                  <DialogHeader>
+                    <DialogTitle>Create New Submission</DialogTitle>
+                  </DialogHeader>
+                  <SubmissionForm onSuccess={handleFormSuccess} />
+                </DialogContent>
+              </Dialog>
               <Button
                 onClick={handleBulkApprove}
                 disabled={selectedIds.length === 0 || bulkApproveMutation.isPending}

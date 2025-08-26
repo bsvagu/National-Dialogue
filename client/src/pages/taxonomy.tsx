@@ -32,7 +32,6 @@ interface TaxonomyItem {
   category: string;
   parentId?: string;
   createdAt: string;
-  updatedAt: string;
 }
 
 export default function Taxonomy() {
@@ -45,53 +44,30 @@ export default function Taxonomy() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  const canManageTaxonomy = currentUser ? hasPermission(currentUser.roles, "manage_settings") : false;
-
-  // Mock data for demonstration - would connect to real API
-  const mockTaxonomyData: TaxonomyItem[] = [
-    {
-      id: "1",
-      name: "Education",
-      description: "Education-related topics and policies",
-      category: "topic",
-      createdAt: "2024-01-15T10:00:00Z",
-      updatedAt: "2024-01-15T10:00:00Z"
-    },
-    {
-      id: "2", 
-      name: "Healthcare",
-      description: "Healthcare services and medical topics",
-      category: "topic",
-      createdAt: "2024-01-15T10:00:00Z",
-      updatedAt: "2024-01-15T10:00:00Z"
-    },
-    {
-      id: "3",
-      name: "Economic Policy",
-      description: "Economic development and policy discussions",
-      category: "theme",
-      createdAt: "2024-01-15T10:00:00Z",
-      updatedAt: "2024-01-15T10:00:00Z"
-    },
-    {
-      id: "4",
-      name: "High",
-      description: "High priority items requiring immediate attention",
-      category: "urgency",
-      createdAt: "2024-01-15T10:00:00Z",
-      updatedAt: "2024-01-15T10:00:00Z"
-    }
-  ];
+  const canManageTaxonomy = currentUser ? hasPermission(currentUser.roles, "manage_taxonomy") : false;
 
   const { data: taxonomyItems, isLoading } = useQuery<TaxonomyItem[]>({
-    queryKey: ["/api/taxonomy", { search, category: filterCategory }],
+    queryKey: ["/api/topics", { search, category: filterCategory }],
     queryFn: async () => {
-      // Mock API call - replace with real endpoint
-      return mockTaxonomyData.filter(item => 
+      const res = await apiRequest("GET", "/api/topics");
+      const topics = await res.json();
+
+      // Transform backend TopicTag data to frontend TaxonomyItem format
+      const transformedItems = topics.map((topic: any) => ({
+        id: topic.id,
+        name: topic.name,
+        description: `Topic: ${topic.name}`,
+        category: "topic", // Default category for all items from backend
+        parentId: topic.parentId,
+        createdAt: topic.createdAt,
+      }));
+
+      return transformedItems.filter((item: TaxonomyItem) =>
         item.name.toLowerCase().includes(search.toLowerCase()) &&
         (filterCategory === "all" || item.category === filterCategory)
       );
     },
+    enabled: canManageTaxonomy,
   });
 
   const {
@@ -112,23 +88,27 @@ export default function Taxonomy() {
 
   const createTaxonomyMutation = useMutation({
     mutationFn: async (data: TaxonomyFormData) => {
-      // Mock API call - replace with real endpoint
-      console.log("Creating taxonomy item:", data);
-      await new Promise(resolve => setTimeout(resolve, 500));
+      // Only send name and parentId to backend
+      const backendData = {
+        name: data.name,
+        parentId: data.parentId || undefined,
+      };
+      const res = await apiRequest("POST", "/api/topics", backendData);
+      return await res.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/taxonomy"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/topics"] });
       setShowForm(false);
       reset();
       toast({
         title: "Success",
-        description: "Taxonomy item created successfully",
+        description: "Topic created successfully",
       });
     },
     onError: () => {
       toast({
         title: "Error",
-        description: "Failed to create taxonomy item",
+        description: "Failed to create topic",
         variant: "destructive",
       });
     },
@@ -136,24 +116,28 @@ export default function Taxonomy() {
 
   const updateTaxonomyMutation = useMutation({
     mutationFn: async ({ id, data }: { id: string; data: TaxonomyFormData }) => {
-      // Mock API call - replace with real endpoint
-      console.log("Updating taxonomy item:", id, data);
-      await new Promise(resolve => setTimeout(resolve, 500));
+      // Only send name and parentId to backend
+      const backendData = {
+        name: data.name,
+        parentId: data.parentId || undefined,
+      };
+      const res = await apiRequest("PATCH", `/api/topics/${id}`, backendData);
+      return await res.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/taxonomy"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/topics"] });
       setShowForm(false);
       setEditingItem(null);
       reset();
       toast({
         title: "Success",
-        description: "Taxonomy item updated successfully",
+        description: "Topic updated successfully",
       });
     },
     onError: () => {
       toast({
         title: "Error",
-        description: "Failed to update taxonomy item",
+        description: "Failed to update topic",
         variant: "destructive",
       });
     },
@@ -161,21 +145,19 @@ export default function Taxonomy() {
 
   const deleteTaxonomyMutation = useMutation({
     mutationFn: async (id: string) => {
-      // Mock API call - replace with real endpoint
-      console.log("Deleting taxonomy item:", id);
-      await new Promise(resolve => setTimeout(resolve, 500));
+      await apiRequest("DELETE", `/api/topics/${id}`);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/taxonomy"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/topics"] });
       toast({
         title: "Success",
-        description: "Taxonomy item deleted successfully",
+        description: "Topic deleted successfully",
       });
     },
     onError: () => {
       toast({
         title: "Error",
-        description: "Failed to delete taxonomy item",
+        description: "Failed to delete topic",
         variant: "destructive",
       });
     },
@@ -191,16 +173,18 @@ export default function Taxonomy() {
 
   const handleEdit = (item: TaxonomyItem) => {
     setEditingItem(item);
-    setValue("name", item.name);
-    setValue("description", item.description || "");
-    setValue("category", item.category as any);
-    setValue("parentId", item.parentId || "");
+    reset({
+      name: item.name,
+      description: item.description || "",
+      category: item.category as any,
+      parentId: item.parentId || "",
+    });
     setShowForm(true);
   };
 
-  const handleDelete = (id: string) => {
-    if (window.confirm("Are you sure you want to delete this taxonomy item?")) {
-      deleteTaxonomyMutation.mutate(id);
+  const handleDelete = (item: TaxonomyItem) => {
+    if (window.confirm(`Are you sure you want to delete "${item.name}"?`)) {
+      deleteTaxonomyMutation.mutate(item.id);
     }
   };
 
@@ -211,16 +195,6 @@ export default function Taxonomy() {
       case "urgency": return "bg-red-100 text-red-800";
       case "classification": return "bg-purple-100 text-purple-800";
       default: return "bg-gray-100 text-gray-800";
-    }
-  };
-
-  const getCategoryIcon = (category: string) => {
-    switch (category) {
-      case "topic": return Hash;
-      case "theme": return Grid3x3;
-      case "urgency": return "!";
-      case "classification": return "#";
-      default: return Hash;
     }
   };
 
@@ -261,7 +235,7 @@ export default function Taxonomy() {
               <DialogContent>
                 <DialogHeader>
                   <DialogTitle>
-                    {editingItem ? "Edit Taxonomy Item" : "Add New Taxonomy Item"}
+                    {editingItem ? "Edit Topic" : "Add New Topic"}
                   </DialogTitle>
                 </DialogHeader>
                 <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
@@ -304,6 +278,17 @@ export default function Taxonomy() {
                     {errors.category && (
                       <p className="text-sm text-red-600 mt-1">{errors.category.message}</p>
                     )}
+                  </div>
+
+                  <div>
+                    <Label htmlFor="parentId">Parent Topic (Optional)</Label>
+                    <Input
+                      id="parentId"
+                      {...register("parentId")}
+                      className="mt-1"
+                      placeholder="Leave empty for root topic"
+                      data-testid="input-taxonomy-parent"
+                    />
                   </div>
 
                   <div className="flex justify-end space-x-3 pt-4">
@@ -400,7 +385,7 @@ export default function Taxonomy() {
                     <Button
                       variant="ghost"
                       size="icon"
-                      onClick={() => handleDelete(item.id)}
+                      onClick={() => handleDelete(item)}
                       className="h-8 w-8 text-red-500 hover:text-red-700"
                       data-testid={`button-delete-taxonomy-${item.id}`}
                     >

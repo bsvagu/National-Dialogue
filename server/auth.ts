@@ -92,9 +92,9 @@ export function requirePermission(permission: string) {
 
     // Basic permission mapping
     const rolePermissions: Record<string, string[]> = {
-      'Admin': ['manage_users', 'manage_departments', 'view_analytics', 'manage_settings'],
+      'Admin': ['manage_users', 'manage_departments', 'view_analytics', 'manage_settings', 'manage_taxonomy', 'manage_polls'],
       'Analyst': ['view_analytics', 'export_data'],
-      'Moderator': ['review_submissions', 'manage_cases'],
+      'Moderator': ['review_submissions', 'manage_cases', 'manage_taxonomy'],
       'DeptOfficer': ['manage_assigned_cases', 'view_department_data'],
     };
 

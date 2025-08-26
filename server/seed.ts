@@ -15,6 +15,8 @@ import {
   notifications
 } from '@shared/schema';
 import { hashPassword } from './auth';
+import { fileURLToPath } from "url";
+
 
 export async function seedDatabase() {
   console.log('Starting database seeding...');
@@ -298,8 +300,9 @@ export async function seedDatabase() {
   }
 }
 
-// Run seeding if called directly
-if (import.meta.url === `file://${process.argv[1]}`) {
+const isMain = process.argv[1] === fileURLToPath(import.meta.url);
+
+if (isMain) {
   seedDatabase()
     .then(() => process.exit(0))
     .catch((error) => {

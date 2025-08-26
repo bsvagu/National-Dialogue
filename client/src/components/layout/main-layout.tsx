@@ -38,7 +38,7 @@ export default function MainLayout({ children }: MainLayoutProps) {
 
   const getMainMargin = () => {
     if (isMobile) return '0px';
-    return isSidebarCollapsed ? '64px' : '288px';
+    return isSidebarCollapsed ? '80px' : '288px';
   };
 
   return (

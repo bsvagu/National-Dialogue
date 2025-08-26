@@ -404,9 +404,26 @@ export const insertDepartmentSchema = createInsertSchema(departments).omit({
 
 export const selectDepartmentSchema = createSelectSchema(departments);
 
+export const insertRoleSchema = createInsertSchema(roles).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const selectRoleSchema = createSelectSchema(roles);
+
+export const insertTopicTagSchema = createInsertSchema(topicTags).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const selectTopicTagSchema = createSelectSchema(topicTags);
+
 export const insertPollSchema = createInsertSchema(polls).omit({
   id: true,
   createdAt: true,
+}).extend({
+  startAt: z.string().transform((str) => new Date(str)),
+  endAt: z.string().transform((str) => new Date(str)),
 });
 
 export const selectPollSchema = createSelectSchema(polls);
@@ -452,6 +469,12 @@ export type Case = typeof cases.$inferSelect;
 export type InsertDepartment = z.infer<typeof insertDepartmentSchema>;
 export type Department = typeof departments.$inferSelect;
 
+export type InsertRole = z.infer<typeof insertRoleSchema>;
+export type Role = typeof roles.$inferSelect;
+
+export type InsertTopicTag = z.infer<typeof insertTopicTagSchema>;
+export type TopicTag = typeof topicTags.$inferSelect;
+
 export type InsertPoll = z.infer<typeof insertPollSchema>;
 export type Poll = typeof polls.$inferSelect;
 
@@ -461,8 +484,6 @@ export type OtpVerify = z.infer<typeof otpVerifySchema>;
 export type InsertOtpVerification = z.infer<typeof insertOtpVerificationSchema>;
 export type OtpVerification = typeof otpVerifications.$inferSelect;
 
-export type Role = typeof roles.$inferSelect;
 export type Permission = typeof permissions.$inferSelect;
-export type TopicTag = typeof topicTags.$inferSelect;
 export type Notification = typeof notifications.$inferSelect;
 export type AuditLog = typeof auditLogs.$inferSelect;

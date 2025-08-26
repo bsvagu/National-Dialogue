@@ -5,13 +5,15 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { hasPermission } from "@/lib/authUtils";
 import { useAuth } from "@/hooks/useAuth";
-import { Plus, Edit, Key, Ban, Check } from "lucide-react";
+import { Search, Plus, Edit, Trash2, UserCheck, UserX, Check, Ban, Key } from "lucide-react";
 import UserForm from "@/components/forms/user-form";
+import RoleManagementSection from "@/components/role-management";
 import type { User } from "@/types/api";
 
 export default function Users() {
@@ -296,94 +298,7 @@ export default function Users() {
         </Card>
 
         {/* Roles & Permissions */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Role Management</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="border border-slate-200 rounded-lg p-4">
-              <div className="flex items-center justify-between mb-2">
-                <h4 className="font-medium text-slate-900">SuperAdmin</h4>
-                <Button size="sm" variant="ghost" className="text-blue-600 hover:text-blue-700">
-                  <Edit className="h-4 w-4" />
-                </Button>
-              </div>
-              <p className="text-sm text-slate-600 mb-3">Full system access and user management</p>
-              <div className="space-y-1">
-                <div className="flex items-center text-xs text-slate-500">
-                  <Check className="h-3 w-3 text-green-500 mr-2" />
-                  <span>Manage users</span>
-                </div>
-                <div className="flex items-center text-xs text-slate-500">
-                  <Check className="h-3 w-3 text-green-500 mr-2" />
-                  <span>Manage departments</span>
-                </div>
-                <div className="flex items-center text-xs text-slate-500">
-                  <Check className="h-3 w-3 text-green-500 mr-2" />
-                  <span>View analytics</span>
-                </div>
-              </div>
-            </div>
-
-            <div className="border border-slate-200 rounded-lg p-4">
-              <div className="flex items-center justify-between mb-2">
-                <h4 className="font-medium text-slate-900">Moderator</h4>
-                <Button size="sm" variant="ghost" className="text-blue-600 hover:text-blue-700">
-                  <Edit className="h-4 w-4" />
-                </Button>
-              </div>
-              <p className="text-sm text-slate-600 mb-3">Review and moderate submissions</p>
-              <div className="space-y-1">
-                <div className="flex items-center text-xs text-slate-500">
-                  <Check className="h-3 w-3 text-green-500 mr-2" />
-                  <span>Review submissions</span>
-                </div>
-                <div className="flex items-center text-xs text-slate-500">
-                  <Check className="h-3 w-3 text-green-500 mr-2" />
-                  <span>Approve/reject content</span>
-                </div>
-                <div className="flex items-center text-xs text-slate-500">
-                  <Ban className="h-3 w-3 text-red-500 mr-2" />
-                  <span>Manage users</span>
-                </div>
-              </div>
-            </div>
-
-            <div className="border border-slate-200 rounded-lg p-4">
-              <div className="flex items-center justify-between mb-2">
-                <h4 className="font-medium text-slate-900">Analyst</h4>
-                <Button size="sm" variant="ghost" className="text-blue-600 hover:text-blue-700">
-                  <Edit className="h-4 w-4" />
-                </Button>
-              </div>
-              <p className="text-sm text-slate-600 mb-3">Read-only access to analytics and reports</p>
-              <div className="space-y-1">
-                <div className="flex items-center text-xs text-slate-500">
-                  <Check className="h-3 w-3 text-green-500 mr-2" />
-                  <span>View analytics</span>
-                </div>
-                <div className="flex items-center text-xs text-slate-500">
-                  <Check className="h-3 w-3 text-green-500 mr-2" />
-                  <span>Export data</span>
-                </div>
-                <div className="flex items-center text-xs text-slate-500">
-                  <Ban className="h-3 w-3 text-red-500 mr-2" />
-                  <span>Manage users</span>
-                </div>
-              </div>
-            </div>
-          </CardContent>
-          <div className="p-6 border-t border-slate-200">
-            <Button 
-              variant="outline" 
-              className="w-full"
-              data-testid="button-create-role"
-            >
-              <Plus className="mr-2 h-4 w-4" />
-              Create New Role
-            </Button>
-          </div>
-        </Card>
+        <RoleManagementSection />
       </div>
     </div>
   );

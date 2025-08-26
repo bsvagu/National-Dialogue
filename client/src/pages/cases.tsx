@@ -4,9 +4,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
-import { Plus, Clock, AlertTriangle } from "lucide-react";
+import { Plus, Clock, AlertTriangle, Edit } from "lucide-react";
+import CaseForm from "@/components/forms/case-form";
 import type { Case, Department, User } from "@/types/api";
 
 interface CasesResponse {
@@ -26,6 +28,8 @@ export default function Cases() {
     department: "all",
     priority: "all",
   });
+  const [showCreateForm, setShowCreateForm] = useState(false);
+  const [editingCase, setEditingCase] = useState<Case | null>(null);
 
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -82,6 +86,21 @@ export default function Cases() {
     }
   };
 
+  const handleCreateCase = () => {
+    setEditingCase(null);
+    setShowCreateForm(true);
+  };
+
+  const handleEditCase = (caseData: Case) => {
+    setEditingCase(caseData);
+    setShowCreateForm(true);
+  };
+
+  const handleFormSuccess = () => {
+    setShowCreateForm(false);
+    setEditingCase(null);
+  };
+
   const getDueStatus = (dueAt?: string) => {
     if (!dueAt) return null;
     
@@ -118,19 +137,33 @@ export default function Cases() {
 
   const CaseCard = ({ caseItem }: { caseItem: Case }) => {
     const dueStatus = getDueStatus(caseItem.dueAt);
-    
+
     return (
-      <div 
-        className="border border-md-outline-variant rounded-md-lg p-4 hover:bg-md-surface-container-high cursor-pointer transition-all duration-200 bg-md-surface shadow-md-1"
+      <div
+        className="border border-md-outline-variant rounded-md-lg p-4 hover:bg-md-surface-container-high transition-all duration-200 bg-md-surface shadow-md-1"
         data-testid={`case-card-${caseItem.id}`}
       >
         <div className="flex items-start justify-between mb-3">
           <span className="md-body-medium font-medium text-md-surface-on">
             #{caseItem.id.slice(-8)}
           </span>
-          <Badge className={`${getPriorityColor(caseItem.priority)} capitalize md-label-small`}>
-            {caseItem.priority}
-          </Badge>
+          <div className="flex items-center space-x-2">
+            <Badge className={`${getPriorityColor(caseItem.priority)} capitalize md-label-small`}>
+              {caseItem.priority}
+            </Badge>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={(e) => {
+                e.stopPropagation();
+                handleEditCase(caseItem);
+              }}
+              className="h-6 w-6 p-0 text-md-surface-on-variant hover:text-md-surface-on"
+              data-testid={`edit-case-${caseItem.id}`}
+            >
+              <Edit className="h-3 w-3" />
+            </Button>
+          </div>
         </div>
         
         <p className="md-body-small text-md-surface-on-variant mb-3 line-clamp-2">
@@ -235,11 +268,27 @@ export default function Cases() {
               </Select>
             </div>
 
-            <Button className="w-full sm:w-auto bg-md-primary hover:bg-md-primary-container text-md-primary-on hover:text-md-primary-on-container md-label-large" data-testid="button-create-case">
-              <Plus className="mr-2 h-4 w-4" />
-              <span className="hidden sm:inline">Create New Case</span>
-              <span className="sm:hidden">New Case</span>
-            </Button>
+            <Dialog open={showCreateForm} onOpenChange={setShowCreateForm}>
+              <DialogTrigger asChild>
+                <Button
+                  onClick={handleCreateCase}
+                  className="w-full sm:w-auto bg-md-primary hover:bg-md-primary-container text-md-primary-on hover:text-md-primary-on-container md-label-large"
+                  data-testid="button-create-case"
+                >
+                  <Plus className="mr-2 h-4 w-4" />
+                  <span className="hidden sm:inline">Create New Case</span>
+                  <span className="sm:hidden">New Case</span>
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+                <DialogHeader>
+                  <DialogTitle>
+                    {editingCase ? "Edit Case" : "Create New Case"}
+                  </DialogTitle>
+                </DialogHeader>
+                <CaseForm case={editingCase || undefined} onSuccess={handleFormSuccess} />
+              </DialogContent>
+            </Dialog>
           </div>
         </CardContent>
       </Card>
